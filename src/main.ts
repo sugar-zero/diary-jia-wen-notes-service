@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ResponseIntercept } from './common/responseIntercept';
+import { AbnormalFilter } from './common/abnormalFilter';
 
 /**
  * 异步函数，用于启动应用程序
@@ -21,7 +23,10 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, 'images'), {
     prefix: '/static',
   });
-
+  //  全局拦截器
+  app.useGlobalInterceptors(new ResponseIntercept());
+  // 全局异常过滤器
+  app.useGlobalFilters(new AbnormalFilter());
   // 监听3000端口
   await app.listen(3000);
 }
