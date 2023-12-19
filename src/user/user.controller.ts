@@ -1,21 +1,41 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+// import { RegisterDto } from './dto/register-dto';
+// import { UserLoginDto } from './dto/userlogin-dto';
+import { decrypt } from '../utils/aes';
+import { JwtDecrypTool } from '../utils/aes';
 
 @Controller({
   path: 'user',
   version: '1',
 })
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtDecrypTool: JwtDecrypTool,
+  ) {}
+  // 注册
   @Post('reg')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  register(@Body() registerUserDto) {
+    const deReq = decrypt(registerUserDto.data);
+    return this.userService.register(JSON.parse(deReq));
   }
-
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  // 登录
+  @Post('login')
+  login(@Body() req) {
+    const deReq = decrypt(req.data);
+    return this.userService.login(JSON.parse(deReq));
   }
+  // 查询所有
+  @Get('info')
+  GetUserInfo(@Headers() header) {
+    return this.userService.GetUserInfo(
+      this.jwtDecrypTool.getDecryp(header.authorization),
+    );
+  }
+  // 查询单个
+  // @Get(':id')
+  // findOne(@Param('id', ParseIntPipe) id: string) {
+  //   return this.userService.findOne(+id);
+  // }
 }

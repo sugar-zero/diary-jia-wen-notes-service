@@ -13,12 +13,13 @@ export class AbnormalFilter implements ExceptionFilter {
     const status = exception.getStatus();
     // 获取异常信息
     const message = exception.message ? exception.message : 'Server Error';
+    console.log(exception);
     // 响应异常
     response.status(status).json({
       code: status,
       message: message,
       data: null,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toLocaleString(),
     });
   }
 }

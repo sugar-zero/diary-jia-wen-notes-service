@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { VersioningType } from '@nestjs/common';
+import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { ResponseIntercept } from './common/responseIntercept';
@@ -27,6 +27,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseIntercept());
   // 全局异常过滤器
   app.useGlobalFilters(new AbnormalFilter());
+  // 全局管道
+  app.useGlobalPipes(new ValidationPipe());
   // 监听3000端口
   await app.listen(3000);
 }
