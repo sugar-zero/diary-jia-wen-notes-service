@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class UserLoginDto {
   @IsString()
@@ -10,4 +10,7 @@ export class UserLoginDto {
   @IsNotEmpty({ message: '密码不能为空' })
   // @Length(6, 6, { message: '密码长度不能小于6位' })
   password: string;
+
+  @IsBoolean()
+  remember: boolean;
 }

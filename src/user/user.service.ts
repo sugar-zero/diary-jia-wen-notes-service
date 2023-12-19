@@ -74,8 +74,8 @@ export class UserService {
   }
 
   //登录
-  async login({ username, password }: UserLoginDto) {
-    //加密密码
+  async login({ username, password, remember }: UserLoginDto) {
+    //验证加密密码
     password = encrypt(password);
     // console.log(password);
     const userInfo = await this.userRepository.findOne({
@@ -88,7 +88,10 @@ export class UserService {
       return {
         message: '登录成功',
         data: {
-          token: this.jwtService.sign({ username: userInfo.username }),
+          token: this.jwtService.sign(
+            { username: userInfo.username },
+            { expiresIn: remember ? '30d' : '1h' },
+          ),
         },
       };
     } else {
