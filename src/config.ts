@@ -13,6 +13,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   entities: ['dist/**/*.entity{.ts,.js}'],
   synchronize: true,
   autoLoadEntities: true,
+  debug: false,
 };
 
 export const jwtConfig: JwtModuleOptions = {

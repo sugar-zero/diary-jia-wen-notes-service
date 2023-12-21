@@ -9,7 +9,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SystemModule } from './system/system.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeOrmConfig), UploadModule, UserModule, SystemModule],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    UploadModule,
+    UserModule,
+    SystemModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

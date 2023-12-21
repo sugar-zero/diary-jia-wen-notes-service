@@ -50,9 +50,15 @@ export class UserService {
     });
 
     return {
-      message: '注册成功',
+      message: '注册成功(注册自动登录有效期1小时)',
       data: {
-        token: this.jwtService.sign({ username: newUser.username }),
+        token: this.jwtService.sign(
+          {
+            userid: newUser.userid,
+            username: newUser.username,
+          },
+          { expiresIn: '1h' },
+        ),
       },
     };
   }
@@ -66,9 +72,32 @@ export class UserService {
       where: {
         username,
       },
-      select: ['nickname', 'signature'],
+      select: ['nickname', 'signature', 'avatar', 'userBg'],
     });
     return {
+      data: userInfo,
+    };
+  }
+  //更新用户信息
+  async UpdateUserInfo({ nickname, signature, avatar, userBg }, { username }) {
+    await this.userRepository.update(
+      { username },
+      {
+        nickname,
+        signature,
+        avatar,
+        userBg,
+      },
+    );
+    // console.log(updateinfo);
+    const userInfo = await this.userRepository.findOne({
+      where: {
+        username,
+      },
+      select: ['nickname', 'signature', 'avatar', 'userBg'],
+    });
+    return {
+      message: '修改成功',
       data: userInfo,
     };
   }
@@ -89,7 +118,7 @@ export class UserService {
         message: '登录成功',
         data: {
           token: this.jwtService.sign(
-            { username: userInfo.username },
+            { userid: userInfo.userid, username: userInfo.username },
             { expiresIn: remember ? '30d' : '1h' },
           ),
         },

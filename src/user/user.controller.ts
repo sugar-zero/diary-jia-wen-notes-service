@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, Put } from '@nestjs/common';
 import { UserService } from './user.service';
-// import { RegisterDto } from './dto/register-dto';
-// import { UserLoginDto } from './dto/userlogin-dto';
-import { decrypt } from '../utils/aes';
+import { RegisterDto } from './dto/register-dto';
+import { UserLoginDto } from './dto/userlogin-dto';
 import { JwtDecrypTool } from '../utils/aes';
 
 @Controller({
@@ -16,20 +15,27 @@ export class UserController {
   ) {}
   // 注册
   @Post('reg')
-  register(@Body() registerUserDto) {
-    const deReq = decrypt(registerUserDto.data);
-    return this.userService.register(JSON.parse(deReq));
+  async register(@Body() registerUserDto: RegisterDto) {
+    return await this.userService.register(registerUserDto);
   }
   // 登录
   @Post('login')
-  login(@Body() req) {
-    const deReq = decrypt(req.data);
-    return this.userService.login(JSON.parse(deReq));
+  login(@Body() req: UserLoginDto) {
+    return this.userService.login(req);
   }
-  // 查询所有
+  // 查询自己用户信息
   @Get('info')
   GetUserInfo(@Headers() header) {
+    console.log(this.jwtDecrypTool.getDecryp(header.authorization));
     return this.userService.GetUserInfo(
+      this.jwtDecrypTool.getDecryp(header.authorization),
+    );
+  }
+
+  @Put('info')
+  UpdateUserInfo(@Body() req, @Headers() header) {
+    return this.userService.UpdateUserInfo(
+      req,
       this.jwtDecrypTool.getDecryp(header.authorization),
     );
   }
