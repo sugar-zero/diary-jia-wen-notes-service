@@ -13,11 +13,16 @@ import { FileInterceptor } from '@nestjs/platform-express';
 })
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
-
+  // 上传图片
   @Post('img')
   @UseInterceptors(FileInterceptor('file'))
   upload(@UploadedFile() file) {
-    console.log(file);
-    return { code: 200, msg: '上传成功', data: file.filename };
+    return this.uploadService.upload(file, 'images');
+  }
+  // 上传头像
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('avatar'))
+  uploadAvatar(@UploadedFile() file) {
+    return this.uploadService.upload(file, 'avatar');
   }
 }

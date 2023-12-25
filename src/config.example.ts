@@ -23,3 +23,11 @@ export const jwtConfig: JwtModuleOptions = {
   },
   global: true,
 };
+//以下内容请新建config.oss.ts并剪切过去
+export const prodOssConfig = {
+  accessKeyId: 'accessKeyId',
+  accessKeySecret: 'accessKeySecret',
+  endpoint: 'endpoint',
+  bucket: 'bucket',
+  region: 'region',
+};
