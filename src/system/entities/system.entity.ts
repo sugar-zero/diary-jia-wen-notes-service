@@ -14,12 +14,14 @@ export class SystemConfig {
   @Column({
     type: 'varchar',
     comment: '备案号',
+    nullable: true,
   })
   filings: string;
 
   @Column({
     type: 'varchar',
     comment: '背景地址',
+    nullable: true,
   })
   backgroundUrl: string;
 }

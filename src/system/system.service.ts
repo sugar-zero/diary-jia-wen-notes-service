@@ -11,15 +11,13 @@ export class SystemService {
     private readonly systemConfigRepository: Repository<SystemConfig>,
   ) {}
   async GetInfo() {
-    const systemConfig = await this.systemConfigRepository.find({});
-    const _systemConfig = systemConfig.map((item: any) => {
-      delete item.id;
-      return item;
+    const systemConfig = await this.systemConfigRepository.find({
+      select: ['allowResgister', 'filings', 'backgroundUrl'],
     });
     // console.log(_systemConfig);
     return {
       message: '系统信息已加载',
-      data: _systemConfig[0],
+      data: systemConfig[0],
     };
   }
 
