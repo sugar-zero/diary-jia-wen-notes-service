@@ -26,7 +26,7 @@ export class UserController {
   // 查询自己用户信息
   @Get('info')
   GetUserInfo(@Headers() header) {
-    console.log(this.jwtDecrypTool.getDecryp(header.authorization));
+    // console.log(this.jwtDecrypTool.getDecryp(header.authorization));
     return this.userService.GetUserInfo(
       this.jwtDecrypTool.getDecryp(header.authorization),
     );

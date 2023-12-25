@@ -3,11 +3,11 @@ import { JwtModuleOptions } from '@nestjs/jwt';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
-  host: '192.168.2.15',
+  host: 'localhost',
   port: 3306,
-  username: 'diary-service',
-  password: 'Drk3peDWctPzz5kS',
-  database: 'diary-service-develop',
+  username: 'root',
+  password: 'root',
+  database: 'databse',
   charset: 'utf8mb4',
   timezone: '+08:00',
   entities: ['dist/**/*.entity{.ts,.js}'],

@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { SystemConfig } from './entities/system.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConfig } from '../config';
+import { jwtConfig } from '../config.prod';
 import { JwtDecrypTool } from '../utils/aes';
 
 @Module({

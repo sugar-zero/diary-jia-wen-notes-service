@@ -72,7 +72,7 @@ export class UserService {
       where: {
         username,
       },
-      select: ['nickname', 'signature', 'avatar', 'userBg'],
+      select: ['username', 'nickname', 'signature', 'avatar', 'userBg'],
     });
     return {
       data: userInfo,
@@ -94,7 +94,7 @@ export class UserService {
       where: {
         username,
       },
-      select: ['nickname', 'signature', 'avatar', 'userBg'],
+      select: ['username', 'nickname', 'signature', 'avatar', 'userBg'],
     });
     return {
       message: '修改成功',

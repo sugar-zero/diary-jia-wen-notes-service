@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Diary } from '../../diary/entities/diary.entity';
 
 @Entity()
 export class User {
@@ -64,4 +65,8 @@ export class User {
     nullable: true,
   })
   userBg: string;
+
+  // 一个用户对应多个日记
+  @OneToMany(() => Diary, (diary) => diary.user_id)
+  diaries: Diary[];
 }
