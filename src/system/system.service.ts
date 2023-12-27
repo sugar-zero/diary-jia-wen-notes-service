@@ -12,7 +12,13 @@ export class SystemService {
   ) {}
   async GetInfo() {
     const systemConfig = await this.systemConfigRepository.find({
-      select: ['allowResgister', 'filings', 'backgroundUrl'],
+      select: [
+        'allowResgister',
+        'filings',
+        'backgroundUrl',
+        'version',
+        'diffversion',
+      ],
     });
     // console.log(_systemConfig);
     return {

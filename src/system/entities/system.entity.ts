@@ -24,4 +24,18 @@ export class SystemConfig {
     nullable: true,
   })
   backgroundUrl: string;
+
+  @Column({
+    type: 'int',
+    comment: '版本号',
+    nullable: true,
+  })
+  version: number;
+
+  @Column({
+    type: 'int',
+    comment: '允许差异版本',
+    nullable: true,
+  })
+  diffversion: number;
 }

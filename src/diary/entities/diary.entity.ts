@@ -24,6 +24,8 @@ export class Diary {
   @Column({
     type: 'text',
     comment: '日记',
+    nullable: true,
+    default: null,
   })
   content: string;
 
@@ -47,4 +49,12 @@ export class Diary {
     nullable: true,
   })
   update_time: Date;
+
+  @Column({
+    type: 'json',
+    comment: '附件列表',
+    nullable: true,
+    default: null,
+  })
+  filesList: object;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
 import { JwtService } from '@nestjs/jwt';
 
@@ -30,11 +30,11 @@ export class JwtDecrypTool {
     try {
       decodeToken = this.jwtService.verify(token.split('Bearer ')[1]);
     } catch (e) {
-      throw new BadRequestException('登录失效,请重新登陆');
+      throw new UnauthorizedException('登录失效,请重新登陆');
     }
-    if (!decodeToken) throw new BadRequestException('登录失效,请重新登陆');
+    if (!decodeToken) throw new UnauthorizedException('登录失效,请重新登陆');
     if (decodeToken.exp - decodeToken.iat <= 0)
-      throw new BadRequestException('登录超时,请重新登陆');
+      throw new UnauthorizedException('登录超时,请重新登陆');
     return decodeToken;
   }
 }

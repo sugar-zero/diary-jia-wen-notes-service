@@ -5,14 +5,13 @@ import { OssService } from '../utils/alioss';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
+import { JwtDecrypTool } from '../utils/aes';
 
 @Module({
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: (req, file, cb) => {
-          cb(null, join(__dirname, '../images'));
-        },
+        destination: join(__dirname, '../images'),
         filename: (req, file, cb) => {
           cb(null, new Date().getTime() + extname(file.originalname));
         },
@@ -20,6 +19,6 @@ import { extname, join } from 'path';
     }),
   ],
   controllers: [UploadController],
-  providers: [UploadService, OssService],
+  providers: [UploadService, OssService, JwtDecrypTool],
 })
 export class UploadModule {}

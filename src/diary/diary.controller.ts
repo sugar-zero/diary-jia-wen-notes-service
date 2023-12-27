@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Headers, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Get,
+  Delete,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 // import { UpdateDiaryDto } from './dto/update-diary.dto';
@@ -34,13 +43,17 @@ export class DiaryController {
   //   return this.diaryService.findOne(+id);
   // }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateDiaryDto: UpdateDiaryDto) {
-  //   return this.diaryService.update(+id, updateDiaryDto);
-  // }
+  @Patch('record')
+  update(@Body() patchDiaryData: CreateDiaryDto) {
+    return this.diaryService.update(patchDiaryData);
+    // const newFileslist = req.files.map((item: any) => {
+    //   return item.url;
+    // });
+    // console.log(req);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.diaryService.remove(+id);
-  // }
+  @Delete('record/:id')
+  remove(@Param('id') id: string) {
+    return this.diaryService.remove(+id);
+  }
 }

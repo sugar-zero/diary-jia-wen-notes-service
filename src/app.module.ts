@@ -10,7 +10,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SystemModule } from './system/system.module';
 import { DiaryModule } from './diary/diary.module';
 
-console.log(process.env.NODE_ENV);
+console.log(
+  '当前运行环境:',
+  process.env.NODE_ENV,
+  process.env.MODE ? `+ ${process.env.MODE}` : '',
+);
 @Module({
   imports: [
     TypeOrmModule.forRoot(

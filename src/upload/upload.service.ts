@@ -8,19 +8,19 @@ export class UploadService {
   constructor(private readonly ossService: OssService) {}
   // 上传图片
   async upload(file: any, fileRoute: string): Promise<any> {
-    const reFileName = join(__dirname, `../images/${file.filename}`);
+    const reNameFile = join(__dirname, `../images/${file.filename}`);
     try {
       const ossUrl = await this.ossService.putOssFile(
         `/${fileRoute}/${file.filename}`,
-        reFileName,
+        reNameFile,
       );
-      this.deleteLocalCacheFiles(reFileName);
+      this.deleteLocalCacheFiles(reNameFile);
       return {
         data: ossUrl.replace('http', 'https'),
         message: '上传成功',
       };
     } catch (error) {
-      this.deleteLocalCacheFiles(reFileName);
+      this.deleteLocalCacheFiles(reNameFile);
       throw new BadRequestException('文件上传失败');
     }
   }
