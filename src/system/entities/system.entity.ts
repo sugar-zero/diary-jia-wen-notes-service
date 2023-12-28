@@ -20,7 +20,7 @@ export class SystemConfig {
 
   @Column({
     type: 'varchar',
-    comment: '背景地址',
+    comment: '登录页背景地址',
     nullable: true,
   })
   backgroundUrl: string;
@@ -29,6 +29,7 @@ export class SystemConfig {
     type: 'int',
     comment: '版本号',
     nullable: true,
+    default: 100,
   })
   version: number;
 
@@ -36,6 +37,7 @@ export class SystemConfig {
     type: 'int',
     comment: '允许差异版本',
     nullable: true,
+    default: 10,
   })
-  diffversion: number;
+  diffVersion: number;
 }

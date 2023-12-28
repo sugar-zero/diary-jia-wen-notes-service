@@ -38,6 +38,9 @@ dependencies:
   ali-oss:
     specifier: ^6.19.0
     version: 6.19.0
+  body-parser:
+    specifier: ^1.20.2
+    version: 1.20.2
   class-transformer:
     specifier: ^0.5.1
     version: 0.5.1

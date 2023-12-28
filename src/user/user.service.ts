@@ -121,6 +121,7 @@ export class UserService {
             { userid: userInfo.userid, username: userInfo.username },
             { expiresIn: remember ? '30d' : '1h' },
           ),
+          userInfo: userInfo.userid,
         },
       };
     } else {
