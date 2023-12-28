@@ -40,13 +40,14 @@ export class UploadService {
     { diaryId },
     { userid },
   ): Promise<any> {
+    const reNameFile = join(__dirname, `../images/${file.filename}`);
     // 更新日记图片前先鉴权
     const diaryOwner = await this.diaryService.findDiaryOwner(diaryId);
-    if (diaryOwner.user_id !== userid) {
+    if (diaryOwner.user_id === userid) {
+      this.deleteLocalCacheFiles(reNameFile);
       throw new BadRequestException('这篇日记不属于你,你不能更换图片');
     }
 
-    const reNameFile = join(__dirname, `../images/${file.filename}`);
     try {
       const ossUrl = await this.ossService.putOssFile(
         `/${fileRoute}/${file.filename}`,
