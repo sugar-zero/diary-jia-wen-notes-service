@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDiaryDto } from './dto/create-diary.dto';
@@ -39,14 +39,18 @@ export class DiaryService {
           'diary.filesList',
           'user.nickname',
           'user.username',
+          'user.userid',
         ])
         .getMany();
       // console.log(diary);
       diary.forEach((item: any) => {
-        item.author = item.author.nickname
+        const owner = item.author.nickname
           ? item.author.nickname
           : item.author.username;
+        const ownerid = item.author.userid;
+        item.author = { owner, ownerid };
       });
+      // console.log(diary);
       return diary;
     }
   }
@@ -55,13 +59,19 @@ export class DiaryService {
   //   return `This action returns a #${id} diary`;
   // }
 
-  async update(patchDiaryData) {
+  async update(patchDiaryData, token) {
+    //先鉴权，检查日记所有者是否为更新者
+    const diaryOwner = await this.findDiaryOwner(patchDiaryData.id);
+    if (diaryOwner.user_id !== token.userid) {
+      throw new BadRequestException('这篇日记不属于你,你不能修改它');
+    }
     const newFileslist = patchDiaryData.files.map((item: any) => {
-      return item.url;
+      return item.url ? item.url : item.response.data.data;
     });
+    // console.log(newFileslist);
     await this.diaryRepository.update(patchDiaryData.id, {
       content: patchDiaryData.content,
-      filesList: newFileslist ? null : newFileslist,
+      filesList: newFileslist.length > 0 ? newFileslist : null,
       update_time: new Date(),
     });
     return {
@@ -69,10 +79,23 @@ export class DiaryService {
     };
   }
 
-  async remove(id: number) {
+  async remove(id: number, token) {
+    const diaryOwner = await this.findDiaryOwner(id);
+    if (diaryOwner.user_id !== token.userid) {
+      throw new BadRequestException('这篇日记不属于你,你不能删除它');
+    }
     await this.diaryRepository.update(id, { isDelete: true });
     return {
       message: `#${id} 日记已删除`,
     };
+  }
+
+  //用户找日记的所有者，鉴权用
+  async findDiaryOwner(id) {
+    const diaryOwner = await this.diaryRepository.findOne({
+      where: { id: id },
+      select: ['user_id'],
+    });
+    return diaryOwner;
   }
 }

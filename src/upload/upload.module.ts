@@ -6,9 +6,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { JwtDecrypTool } from '../utils/aes';
+import { DiaryService } from '../diary/diary.service';
+import { Diary } from 'src/diary/entities/diary.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Diary]),
     MulterModule.register({
       storage: diskStorage({
         destination: join(__dirname, '../images'),
@@ -19,6 +23,6 @@ import { JwtDecrypTool } from '../utils/aes';
     }),
   ],
   controllers: [UploadController],
-  providers: [UploadService, OssService, JwtDecrypTool],
+  providers: [UploadService, OssService, JwtDecrypTool, DiaryService],
 })
 export class UploadModule {}

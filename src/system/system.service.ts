@@ -17,7 +17,7 @@ export class SystemService {
         'filings',
         'backgroundUrl',
         'version',
-        'diffversion',
+        'diffVersion',
       ],
     });
     // console.log(_systemConfig);
