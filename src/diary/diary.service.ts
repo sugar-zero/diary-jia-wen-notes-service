@@ -40,6 +40,7 @@ export class DiaryService {
           'user.nickname',
           'user.username',
           'user.userid',
+          'user.avatar',
         ])
         .getMany();
       // console.log(diary);
@@ -48,7 +49,8 @@ export class DiaryService {
           ? item.author.nickname
           : item.author.username;
         const ownerid = item.author.userid;
-        item.author = { owner, ownerid };
+        const ownerAvatar = item.author.avatar;
+        item.author = { owner, ownerid, ownerAvatar };
       });
       // console.log(diary);
       return diary;

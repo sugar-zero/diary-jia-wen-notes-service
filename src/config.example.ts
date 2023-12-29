@@ -27,11 +27,11 @@ export const jwtConfig: JwtModuleOptions = {
   },
   global: true,
 };
-//以下内容请新建config.oss.ts并剪切过去
-export const prodOssConfig = {
+
+export const ossConfig = {
   accessKeyId: 'accessKeyId',
   accessKeySecret: 'accessKeySecret',
   endpoint: 'endpoint', //url在概况能看到
   bucket: 'bucket', //是名字不是url
-  region: 'region', //oss-cn-guangzhou，好像一定要这样写
+  region: 'region', //oss-国家-地区，oss-cn-guangzhou，好像一定要这样写
 };
