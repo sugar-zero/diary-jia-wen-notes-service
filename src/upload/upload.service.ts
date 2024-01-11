@@ -2,16 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { OssService } from '../utils/alioss';
 import { join } from 'path';
 import * as fs from 'fs';
-import { InjectRepository } from '@nestjs/typeorm';
+// import { InjectRepository } from '@nestjs/typeorm';
 import { DiaryService } from 'src/diary/diary.service';
-import { Repository } from 'typeorm';
-import { Diary } from 'src/diary/entities/diary.entity';
+// import { Repository } from 'typeorm';
+// import { Diary } from 'src/diary/entities/diary.entity';
 
 @Injectable()
 export class UploadService {
   constructor(
-    @InjectRepository(Diary)
-    private readonly diaryRepository: Repository<Diary>,
+    // @InjectRepository(Diary)
+    // private readonly diaryRepository: Repository<Diary>,
     private readonly ossService: OssService,
     private readonly diaryService: DiaryService,
   ) {}

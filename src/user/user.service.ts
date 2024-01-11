@@ -3,7 +3,7 @@ import { RegisterDto } from './dto/register-dto';
 import { UserLoginDto } from './dto/userlogin-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { SystemConfig } from './entities/system.entity';
+import { SystemService } from '../system/system.service';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { encrypt } from '../utils/aes';
@@ -12,21 +12,22 @@ import { encrypt } from '../utils/aes';
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(SystemConfig)
-    private readonly systemConfigRepository: Repository<SystemConfig>,
+    private readonly systemService: SystemService,
     private readonly jwtService: JwtService,
   ) {}
   async register({ username, password, email, nickname }: RegisterDto) {
     //判断是否开启注册
-    const allowRegister = await this.systemConfigRepository.findOne({
-      where: {
-        allowResgister: true,
-      },
-    });
-    if (!allowRegister) {
+    // const allowRegister = await this.systemConfigRepository.findOne({
+    //   where: {
+    //     allowResgister: true,
+    //   },
+    // });
+    // if (!allowRegister) {
+    //   throw new BadRequestException('注册已关闭');
+    // }
+    const allowResgister = await this.systemService.GetInfo();
+    if (!allowResgister.data.allowResgister)
       throw new BadRequestException('注册已关闭');
-    }
-
     //查找用户是否存在
     const user = await this.userRepository.findOne({
       where: {

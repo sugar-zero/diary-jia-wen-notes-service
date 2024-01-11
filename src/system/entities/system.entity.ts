@@ -8,6 +8,7 @@ export class SystemConfig {
   @Column({
     type: 'boolean',
     comment: '是否开启注册',
+    default: true,
   })
   allowResgister: boolean;
 
@@ -29,7 +30,6 @@ export class SystemConfig {
     type: 'int',
     comment: '版本号',
     nullable: true,
-    default: 100,
   })
   version: number;
 
@@ -37,7 +37,13 @@ export class SystemConfig {
     type: 'int',
     comment: '允许差异版本',
     nullable: true,
-    default: 10,
   })
   diffVersion: number;
+
+  @Column({
+    type: 'boolean',
+    comment: '是否开启维护',
+    default: false,
+  })
+  maintenance: boolean;
 }
