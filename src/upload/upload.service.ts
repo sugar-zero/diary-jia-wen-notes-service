@@ -2,16 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { OssService } from '../utils/alioss';
 import { join } from 'path';
 import * as fs from 'fs';
-import { InjectRepository } from '@nestjs/typeorm';
+// import { InjectRepository } from '@nestjs/typeorm';
 import { DiaryService } from 'src/diary/diary.service';
-import { Repository } from 'typeorm';
-import { Diary } from 'src/diary/entities/diary.entity';
+// import { Repository } from 'typeorm';
+// import { Diary } from 'src/diary/entities/diary.entity';
 
 @Injectable()
 export class UploadService {
   constructor(
-    @InjectRepository(Diary)
-    private readonly diaryRepository: Repository<Diary>,
+    // @InjectRepository(Diary)
+    // private readonly diaryRepository: Repository<Diary>,
     private readonly ossService: OssService,
     private readonly diaryService: DiaryService,
   ) {}
@@ -43,7 +43,7 @@ export class UploadService {
     const reNameFile = join(__dirname, `../images/${file.filename}`);
     // 更新日记图片前先鉴权
     const diaryOwner = await this.diaryService.findDiaryOwner(diaryId);
-    if (diaryOwner.user_id === userid) {
+    if (diaryOwner.user_id !== userid) {
       this.deleteLocalCacheFiles(reNameFile);
       throw new BadRequestException('这篇日记不属于你,你不能更换图片');
     }

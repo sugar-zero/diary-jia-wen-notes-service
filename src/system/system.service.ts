@@ -18,6 +18,7 @@ export class SystemService {
         'backgroundUrl',
         'version',
         'diffVersion',
+        'maintenance',
       ],
     });
     // console.log(_systemConfig);

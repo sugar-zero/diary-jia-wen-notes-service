@@ -1,5 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Diary } from '../../diary/entities/diary.entity';
+import { Like } from '../../like/entities/like.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 @Entity()
 export class User {
@@ -69,4 +71,12 @@ export class User {
   // 一个用户对应多个日记
   @OneToMany(() => Diary, (diary) => diary.user_id)
   diaries: Diary[];
+
+  // 一个用户对应多个点赞
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
+
+  // 一个用户对应多个评论
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

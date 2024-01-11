@@ -4,12 +4,17 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { Like } from '../../like/entities/like.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 @Entity()
 export class Diary {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    comment: '日记id',
+  })
   id: number;
 
   @Column({
@@ -57,4 +62,12 @@ export class Diary {
     default: null,
   })
   filesList: object;
+
+  // 一个日记对应多个点赞
+  @OneToMany(() => Like, (like) => like.diary)
+  likes: Like[];
+
+  // 一个日记对应多个评论
+  @OneToMany(() => Comment, (comment) => comment.diary)
+  comments: Comment[];
 }
