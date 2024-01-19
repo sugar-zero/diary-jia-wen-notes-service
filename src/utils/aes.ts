@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
 import { JwtService } from '@nestjs/jwt';
 
-const KEY = CryptoJS.enc.Utf8.parse('42812104913');
-const IV = CryptoJS.enc.Utf8.parse('31940121824');
+const KEY = CryptoJS.enc.Utf8.parse('42812104913'); //记得改
+const IV = CryptoJS.enc.Utf8.parse('31940121824'); //记得改
 
 export const encrypt = (text: string) => {
   const encrypted = CryptoJS.AES.encrypt(text, KEY, {
