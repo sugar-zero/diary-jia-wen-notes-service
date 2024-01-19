@@ -15,7 +15,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   charset: 'utf8mb4',
   timezone: '+08:00',
   entities: ['dist/**/*.entity{.ts,.js}'],
-  synchronize: true,
+  synchronize: true, //生产环境关闭自动同步，这很重要！
   autoLoadEntities: true,
   debug: false,
 };
@@ -34,4 +34,10 @@ export const ossConfig = {
   endpoint: 'endpoint', //url在概况能看到
   bucket: 'bucket', //是名字不是url
   region: 'region', //oss-国家-地区，oss-cn-guangzhou，好像一定要这样写
+};
+
+//用于推送消息，可以在这里生成https://vapidkeys.com/ 或其他方法生成
+export const subscribeNotificationInfo = {
+  publicKey: '',
+  privateKey: '',
 };

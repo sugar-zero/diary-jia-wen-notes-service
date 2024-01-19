@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Diary } from '../../diary/entities/diary.entity';
 import { Like } from '../../like/entities/like.entity';
 import { Comment } from '../../comment/entities/comment.entity';
+import { Subscribe } from 'src/subscribe/entities/subscribe.entity';
 
 @Entity()
 export class User {
@@ -79,4 +80,8 @@ export class User {
   // 一个用户对应多个评论
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
+
+  // 一个用户对应多个订阅
+  @OneToMany(() => Subscribe, (subscribe) => subscribe.user_id)
+  subscribe: Subscribe[];
 }

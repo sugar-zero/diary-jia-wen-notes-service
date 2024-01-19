@@ -11,6 +11,7 @@ import { SystemModule } from './system/system.module';
 import { DiaryModule } from './diary/diary.module';
 import { CommentModule } from './comment/comment.module';
 import { LikeModule } from './like/like.module';
+import { SubscribeModule } from './subscribe/subscribe.module';
 
 console.log(
   '当前运行环境:',
@@ -30,6 +31,7 @@ console.log(
     DiaryModule,
     CommentModule,
     LikeModule,
+    SubscribeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
