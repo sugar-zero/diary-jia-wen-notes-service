@@ -124,13 +124,14 @@ export class SubscribeService {
     // console.log(pushSubscription);
 
     // 发送推送通知
+    const printLog = false;
     await WebPush.sendNotification(pushSubscription, payload)
       .then((res: any) => {
-        console.log(res);
+        if (printLog) console.log(res);
       })
       .catch((e: any) => {
         this.updateSubscribe(pushSubscription);
-        console.log(e);
+        if (printLog) console.log(e);
       });
   }
 

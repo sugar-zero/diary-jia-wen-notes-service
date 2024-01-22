@@ -44,7 +44,7 @@ export class CommentService {
         content: CommentProcessing.content,
       });
     }
-    //消息推送，如果回复的就是日记作者就推送一条否则分别推送作者与评论作者
+    //消息推送
     const diaryOwnerId = await this.diaryRepository.findOne({
       where: { id: diaryId },
       select: ['user_id'],
@@ -53,8 +53,16 @@ export class CommentService {
       where: { userid: userId },
       select: ['username', 'nickname'],
     });
+    // 三种情况：前两种评论的均不能是作者否则会重复推送或自己推自己
+    // 他人回复作者：推送给作者
+    // 他人回复他人：推送给作者与被会回复者
+    // 作者回复他人：推送给呗回复者
+    // 如果是回复他人
     if (CommentProcessing.reply) {
-      if (Number(diaryOwnerId.user_id) === CommentProcessing.reply.userId) {
+      if (
+        CommentProcessing.reply.userId === Number(diaryOwnerId.user_id) &&
+        userId !== Number(diaryOwnerId.user_id)
+      ) {
         const load = {
           title: `${
             commentUser.nickname ? commentUser.nickname : commentUser.username
@@ -74,13 +82,20 @@ export class CommentService {
             );
           });
         }
-      } else {
+      } else if (
+        CommentProcessing.reply.userId !== Number(diaryOwnerId.user_id) &&
+        userId !== Number(diaryOwnerId.user_id)
+      ) {
         const commentLoad = {
-          title: `${CommentProcessing.reply.user}评论了您的日记`,
+          title: `${
+            commentUser.nickname ? commentUser.nickname : commentUser.username
+          }评论（回复${CommentProcessing.reply.user}）了您的日记`,
           body: CommentProcessing.content,
         };
         const replyLoad = {
-          title: `${CommentProcessing.reply.user}回复了您的评论`,
+          title: `${
+            commentUser.nickname ? commentUser.nickname : commentUser.username
+          }回复了您的评论`,
           body: CommentProcessing.content,
         };
         const ownerEndpointInfo = await this.subscribeService.findUserEndpoint(
@@ -101,7 +116,28 @@ export class CommentService {
           });
         }
         if (commentOwnerEndpointInfo) {
-          ownerEndpointInfo.forEach((item) => {
+          commentOwnerEndpointInfo.forEach((item) => {
+            this.subscribeService.sendNotification(
+              item.endpoint,
+              item.expirationTime,
+              item.keys,
+              replyLoad,
+            );
+          });
+        }
+      } else {
+        const replyLoad = {
+          title: `${
+            commentUser.nickname ? commentUser.nickname : commentUser.username
+          }回复了您的评论`,
+          body: CommentProcessing.content,
+        };
+        const commentOwnerEndpointInfo =
+          await this.subscribeService.findUserEndpoint(
+            CommentProcessing.reply.userId,
+          );
+        if (commentOwnerEndpointInfo) {
+          commentOwnerEndpointInfo.forEach((item) => {
             this.subscribeService.sendNotification(
               item.endpoint,
               item.expirationTime,
@@ -111,25 +147,29 @@ export class CommentService {
           });
         }
       }
+      // 不是回复他人而是评论
     } else {
-      const userEndpointInfo = await this.subscribeService.findUserEndpoint(
-        Number(diaryOwnerId.user_id),
-      );
-      const load = {
-        title: `${
-          commentUser.nickname ? commentUser.nickname : commentUser.username
-        }评论了您的日记`,
-        body: CommentProcessing.content,
-      };
-      if (userEndpointInfo) {
-        userEndpointInfo.forEach((item) => {
-          this.subscribeService.sendNotification(
-            item.endpoint,
-            item.expirationTime,
-            item.keys,
-            load,
-          );
-        });
+      //评论者不是日记作者才执行
+      if (Number(diaryOwnerId.user_id) !== userId) {
+        const userEndpointInfo = await this.subscribeService.findUserEndpoint(
+          Number(diaryOwnerId.user_id),
+        );
+        const load = {
+          title: `${
+            commentUser.nickname ? commentUser.nickname : commentUser.username
+          }评论了您的日记`,
+          body: CommentProcessing.content,
+        };
+        if (userEndpointInfo) {
+          userEndpointInfo.forEach((item) => {
+            this.subscribeService.sendNotification(
+              item.endpoint,
+              item.expirationTime,
+              item.keys,
+              load,
+            );
+          });
+        }
       }
     }
     return {
