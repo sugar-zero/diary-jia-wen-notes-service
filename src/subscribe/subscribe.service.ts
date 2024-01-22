@@ -86,6 +86,18 @@ export class SubscribeService {
   }
 
   /**
+   * 查找所有终端点
+   * @returns {Promise<Array>} 所有终端点的结果
+   */
+  async findAllEndpoint() {
+    return this.subscribeRepository.find({
+      where: {
+        effective: true,
+      },
+    });
+  }
+
+  /**
    * 发送通知到指定的设备
    * @param endpoint 设备端点
    * @param expirationTime 过期时间
@@ -141,5 +153,73 @@ export class SubscribeService {
       { endpoint: Subscription.endpoint },
       { effective: false },
     );
+  }
+
+  /**
+   * 管理员推送,选定范围
+   * @param {Array<number>} userid - 用户ID
+   * @param {string} notice - 通知消息内容
+   * @param {string} title - 通知消息标题
+   * @returns {object} - 推送结果
+   */
+  async administratorPush({ userid, notice, title }) {
+    const payload = {
+      title: title,
+      body: `${notice}`,
+    };
+
+    // 遍历每个用户ID
+    userid.forEach(async (userItem: number) => {
+      // 根据用户ID查找用户端点
+      const userEndpoint = await this.findUserEndpoint(userItem);
+
+      // 遍历用户端点
+      userEndpoint.forEach(async (item) => {
+        // 发送通知到用户端点
+        await this.sendNotification(
+          item.endpoint,
+          item.expirationTime,
+          item.keys,
+          payload,
+        );
+      });
+    });
+
+    return {
+      message: '消息推送完成',
+    };
+  }
+
+  /**
+   * 管理员推送全员消息
+   * @param {string} notice - 通知内容
+   * @param {string} title - 通知标题
+   * @returns {object} - 推送结果
+   */
+  async administratorPushAll({ notice, title }) {
+    const payload = {
+      title: title,
+      body: `${notice}`,
+    };
+    /**
+     * 获取所有用户端点
+     * @type {Array}
+     */
+    const userEndpoint = await this.findAllEndpoint();
+    /**
+     * 遍历每个用户端点，向其发送通知
+     */
+    userEndpoint.forEach(async (item) => {
+      await this.sendNotification(
+        item.endpoint,
+        item.expirationTime,
+        item.keys,
+        payload,
+      );
+    });
+
+    return {
+      message: '消息推送完成',
+    };
   }
 }
