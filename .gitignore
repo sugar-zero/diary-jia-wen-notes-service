@@ -41,5 +41,8 @@ lerna-debug.log*
 
 # production
 /config/*
+/src/config/*
 config.*.ts
 !config.example.ts
+!/src/config/config.ts
+!/src/config/example.yaml

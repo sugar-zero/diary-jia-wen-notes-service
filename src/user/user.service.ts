@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register-dto';
 import { UserLoginDto } from './dto/userlogin-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { SystemService } from '../system/system.service';
+import { BanService } from 'src/block/block.service';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { encrypt } from '../utils/aes';
@@ -13,6 +18,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly systemService: SystemService,
+    private readonly banService: BanService,
     private readonly jwtService: JwtService,
   ) {}
   async register({ username, password, email, nickname }: RegisterDto) {
@@ -107,7 +113,6 @@ export class UserService {
   async login({ username, password, remember }: UserLoginDto) {
     //验证加密密码
     password = encrypt(password);
-    // console.log(password);
     const userInfo = await this.userRepository.findOne({
       where: {
         username,
@@ -115,6 +120,14 @@ export class UserService {
       },
     });
     if (userInfo) {
+      const userBlockingStatus = await this.banService.userBlockingStatus(
+        userInfo.userid,
+      );
+
+      if (userBlockingStatus) {
+        delete userBlockingStatus.id;
+        throw new ForbiddenException(userBlockingStatus);
+      }
       return {
         message: '登录成功',
         data: {

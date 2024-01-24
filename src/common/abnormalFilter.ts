@@ -20,7 +20,9 @@ export class AbnormalFilter implements ExceptionFilter {
       code: status,
       message: message,
       data: JSON.parse(JSON.stringify(exception.getResponse() as string))
-        .message,
+        .message
+        ? JSON.parse(JSON.stringify(exception.getResponse() as string)).message
+        : exception.getResponse(),
       timestamp: new Date().toLocaleString(),
     });
   }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as OSS from 'ali-oss';
 import { ossConfig as prodOssConfig } from '../config.prod';
-import { ossConfig as devOssConfig } from '../config.dev';
+import { ossConfig as devOssConfig } from '../config.dev2';
 
 // 实现逻辑来自 https://blog.51cto.com/u_16105456/6260525 感谢大佬
 

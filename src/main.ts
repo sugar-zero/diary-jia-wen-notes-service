@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { ResponseIntercept } from './common/responseIntercept';
+// import { ResponseIntercept } from './common/responseIntercept';
 import { AbnormalFilter } from './common/abnormalFilter';
 import * as bodyParser from 'body-parser';
 
@@ -25,7 +25,7 @@ async function bootstrap() {
     prefix: '/static',
   });
   //  全局拦截器
-  app.useGlobalInterceptors(new ResponseIntercept());
+  // app.useGlobalInterceptors(new ResponseIntercept());
   // 全局异常过滤器
   app.useGlobalFilters(new AbnormalFilter());
   // 全局管道

@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const WebPush = require('web-push');
 import { subscribeNotificationInfo as prodSubscribeNotificationInfo } from '../config.prod';
-import { subscribeNotificationInfo as devSubscribeNotificationInfo } from '../config.dev';
+import { subscribeNotificationInfo as devSubscribeNotificationInfo } from '../config.dev2';
 
 @Injectable()
 export class SubscribeService {
