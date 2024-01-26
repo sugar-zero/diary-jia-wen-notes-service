@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SystemConfig } from './entities/system.entity';
 import { Repository } from 'typeorm';
-// import { UpdateSystemDto } from './dto/update-system.dto';
 
 @Injectable()
 export class SystemService {

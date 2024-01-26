@@ -8,5 +8,6 @@ import { BlockList } from './entities/block.entity';
   imports: [TypeOrmModule.forFeature([BlockList])],
   controllers: [BanController],
   providers: [BanService],
+  exports: [BanService],
 })
 export class BanModule {}

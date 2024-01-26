@@ -7,7 +7,7 @@ import { RegisterDto } from './dto/register-dto';
 import { UserLoginDto } from './dto/userlogin-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { SystemService } from '../system/system.service';
+import { SystemService } from 'src/system/system.service';
 import { BanService } from 'src/block/block.service';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';

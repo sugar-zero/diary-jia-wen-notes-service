@@ -5,15 +5,15 @@ import { Subscribe } from './entities/subscribe.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const WebPush = require('web-push');
-import { subscribeNotificationInfo as prodSubscribeNotificationInfo } from '../config.prod';
-import { subscribeNotificationInfo as devSubscribeNotificationInfo } from '../config.dev2';
+import WebPush from 'web-push';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SubscribeService {
   constructor(
     @InjectRepository(Subscribe)
     private readonly subscribeRepository: Repository<Subscribe>,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -106,16 +106,11 @@ export class SubscribeService {
    */
   async sendNotification(endpoint, expirationTime, keys, load) {
     // 根据环境选择订阅通知的信息
-    const SubscribeNotificationInfo =
-      process.env.NODE_ENV === 'prod'
-        ? prodSubscribeNotificationInfo
-        : devSubscribeNotificationInfo;
-
     // 设置VAPID详情
     WebPush.setVapidDetails(
       'mailto:me@amesucre.com', // 可以改成自己的邮箱或网址
-      SubscribeNotificationInfo.publicKey,
-      SubscribeNotificationInfo.privateKey,
+      this.configService.get('subscribeNotification.publicKey'),
+      this.configService.get('subscribeNotification.privateKey'),
     );
 
     // 构建推送订阅对象

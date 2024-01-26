@@ -8,33 +8,49 @@ import { map } from 'rxjs';
 import {
   BadRequestException,
   Injectable,
-  UnauthorizedException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
-import { decrypt, JwtDecrypTool } from '../utils/aes';
-// import { jwtConfig } from '../config.prod';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { decrypt } from '../utils/aes';
+import { CacheService } from 'src/admin/cache/cache.service';
+import { SystemService } from 'src/system/system.service';
+import { ExemptionInterfaceService } from 'src/admin/exemption-interface/exemption-interface.service';
 
 // 响应拦截器
 @Injectable()
 export class ResponseIntercept implements NestInterceptor {
-  constructor(private configService: ConfigService) {}
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  constructor(
+    private readonly cacheService: CacheService,
+    private readonly systemService: SystemService,
+    private readonly exemptionInterfaceService: ExemptionInterfaceService,
+  ) {}
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const router = request.route.path;
-    const freerouting = ['/system/config', 'login', 'reg'];
-    //如果是免鉴权路由
-    if (freerouting.some((route) => router.includes(route))) {
-      //什么都不做
-    } else {
-      if (!request.headers.authorization) {
-        throw new UnauthorizedException('登录失效,请重新登陆');
-      } else {
-        new JwtDecrypTool(
-          new JwtService(this.configService.get('jwt')),
-        ).getDecryp(request.headers.authorization);
-      }
+    const inspectionGallery =
+      await this.cacheService.getCache('inspectionGallery');
+
+    // 检查系统是否在维护
+    const systemInfo = await this.cacheService.getCache('system');
+    try {
+      if (
+        !inspectionGallery.some((route: any) => router.includes(route)) &&
+        systemInfo.maintenance === true
+      )
+        throw new ServiceUnavailableException('系统维护中，请稍后再试');
+    } catch (e) {
+      const systemInfo = await this.systemService.GetInfo();
+      const inspectionGallery =
+        await this.exemptionInterfaceService.inspectionGallery();
+      if (
+        !inspectionGallery.some((route: any) => router.includes(route)) &&
+        systemInfo.data.maintenance === true
+      )
+        throw new ServiceUnavailableException('系统维护中，请稍后再试');
     }
+
     // 登录/注册只接受密文
     if (['/login', '/reg'].some((route) => router.includes(route))) {
       if (!request.body.secret) {

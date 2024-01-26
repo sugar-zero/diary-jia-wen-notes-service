@@ -9,5 +9,6 @@ import { JwtDecrypTool } from '../utils/aes';
   imports: [TypeOrmModule.forFeature([Diary])],
   controllers: [DiaryController],
   providers: [DiaryService, JwtDecrypTool],
+  exports: [DiaryService],
 })
 export class DiaryModule {}

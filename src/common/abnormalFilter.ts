@@ -13,7 +13,7 @@ export class AbnormalFilter implements ExceptionFilter {
     const status = exception.getStatus();
     // 获取异常信息
     const message = exception.message ? exception.message : 'Server Error';
-    console.log('响应上下文:', exception);
+    // console.log('响应上下文:', exception);
     // console.log('请求上下文:', host);
     // 响应异常
     response.status(status).json({
