@@ -9,5 +9,6 @@ import { JwtDecrypTool } from '../utils/aes';
   imports: [TypeOrmModule.forFeature([Subscribe])],
   controllers: [SubscribeController],
   providers: [SubscribeService, JwtDecrypTool],
+  exports: [SubscribeService],
 })
 export class SubscribeModule {}

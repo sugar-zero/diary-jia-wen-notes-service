@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import * as OSS from 'ali-oss';
-import { ossConfig as prodOssConfig } from '../config.prod';
-import { ossConfig as devOssConfig } from '../config.dev';
+import { ConfigService } from '@nestjs/config';
+// import { ossConfig as prodOssConfig } from '../config.prod';
+// import { ossConfig as devOssConfig } from '../config.dev2';
 
 // 实现逻辑来自 https://blog.51cto.com/u_16105456/6260525 感谢大佬
 
 @Injectable()
 export class OssService {
   private client: any;
-  private ossConfig: any =
-    process.env.NODE_ENV === 'prod' ? prodOssConfig : devOssConfig;
-  constructor() {
+  private ossConfig: any = this.configService.get('oss');
+  constructor(private configService: ConfigService) {
     this.client = new OSS({
       accessKeyId: this.ossConfig.accessKeyId,
       accessKeySecret: this.ossConfig.accessKeySecret,

@@ -1,0 +1,43 @@
+webSite: http://localhost
+db:
+  mysql:
+    host: 'localhost',
+    port: 3306,
+    username: 'root',
+    password: 'root',
+    database: 'databse',
+    charset: 'utf8mb4',
+    timezone: '+08:00',
+    synchronize: true, #生产环境请关闭自动同步，这很重要！
+    autoLoadEntities: true,
+    debug: false,
+    logging: false,
+
+jwt:
+  secret: 'Self setting',
+  signOptions:
+    expiresIn: '7d',
+  global: true,
+
+oss:
+  accessKeyId: 'accessKeyId',
+  accessKeySecret: 'accessKeySecret',
+  endpoint: 'endpoint', #url在概况能看到
+  bucket: 'bucket', #是名字不是url
+  region: 'region', #oss-国家-地区，oss-cn-guangzhou，好像一定要这样写
+  internal: true,
+
+#用于推送消息，可以在这里生成https://vapidkeys.com/ 或其他方法生成
+subscribeNotification: 
+  publicKey: '',
+  privateKey: '',
+
+mail:
+  host: smtp.office365.com
+  port: 587
+  secure: false #是否开启ssl
+  starttls: true #是否开启starttls,如果要开启这个需要把secure设置为false
+  auth:
+    user: your-email@example.com
+    password: your-email-password
+  from: 发件人名字 <your-email@example.com>
