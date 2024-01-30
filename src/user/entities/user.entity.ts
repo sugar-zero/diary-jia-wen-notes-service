@@ -4,6 +4,7 @@ import { Like } from '../../like/entities/like.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Subscribe } from 'src/subscribe/entities/subscribe.entity';
 import { BlockList } from 'src/block/entities/block.entity';
+import { ResetToekn } from './resetToken.entity';
 
 @Entity()
 export class User {
@@ -89,4 +90,8 @@ export class User {
   // 一个用户对应多个黑名单
   @OneToMany(() => BlockList, (blockList) => blockList.user_id)
   blockList: BlockList[];
+
+  // 一个用户对应重置密码
+  @OneToMany(() => ResetToekn, (resetToekn) => resetToekn.user_id)
+  resetToekn: ResetToekn[];
 }

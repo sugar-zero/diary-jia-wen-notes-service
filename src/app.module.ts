@@ -22,6 +22,7 @@ import { BanModule } from './block/block.module';
 import { CacheModule } from './admin/cache/cache.module';
 import { ExemptionInterfaceModule } from './admin/exemption-interface/exemption-interface.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MailModule } from './mail/mail.module';
 
 console.log(
   '当前运行环境:',
@@ -61,6 +62,7 @@ console.log(
     // AdminSubscribeModule,
     CacheModule,
     ExemptionInterfaceModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,3 +1,4 @@
+webSite: http://localhost
 db:
   mysql:
     host: 'localhost',
@@ -30,3 +31,13 @@ oss:
 subscribeNotification: 
   publicKey: '',
   privateKey: '',
+
+mail:
+  host: smtp.office365.com
+  port: 587
+  secure: false #是否开启ssl
+  starttls: true #是否开启starttls,如果要开启这个需要把secure设置为false
+  auth:
+    user: your-email@example.com
+    password: your-email-password
+  from: 发件人名字 <your-email@example.com>
