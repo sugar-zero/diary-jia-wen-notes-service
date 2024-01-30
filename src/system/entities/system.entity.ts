@@ -8,6 +8,7 @@ export class SystemConfig {
   @Column({
     type: 'boolean',
     comment: '是否开启注册',
+    default: true,
   })
   allowResgister: boolean;
 
@@ -20,7 +21,7 @@ export class SystemConfig {
 
   @Column({
     type: 'varchar',
-    comment: '背景地址',
+    comment: '登录页背景地址',
     nullable: true,
   })
   backgroundUrl: string;
@@ -37,5 +38,12 @@ export class SystemConfig {
     comment: '允许差异版本',
     nullable: true,
   })
-  diffversion: number;
+  diffVersion: number;
+
+  @Column({
+    type: 'boolean',
+    comment: '是否开启维护',
+    default: false,
+  })
+  maintenance: boolean;
 }

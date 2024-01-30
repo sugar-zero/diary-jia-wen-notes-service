@@ -3,8 +3,9 @@ import { AppModule } from './app.module';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { ResponseIntercept } from './common/responseIntercept';
+// import { ResponseIntercept } from './common/responseIntercept';
 import { AbnormalFilter } from './common/abnormalFilter';
+import * as bodyParser from 'body-parser';
 
 /**
  * 异步函数，用于启动应用程序
@@ -24,11 +25,13 @@ async function bootstrap() {
     prefix: '/static',
   });
   //  全局拦截器
-  app.useGlobalInterceptors(new ResponseIntercept());
+  // app.useGlobalInterceptors(new ResponseIntercept());
   // 全局异常过滤器
   app.useGlobalFilters(new AbnormalFilter());
   // 全局管道
   app.useGlobalPipes(new ValidationPipe());
+
+  app.use(bodyParser.json({ limit: '10mb' }));
   // 监听3000端口
   await app.listen(3000);
 }

@@ -19,7 +19,7 @@ export class NotEmptyConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments) {
     const propertyName = args.property;
-    return `${propertyName} should not be empty.`;
+    return `${propertyName} 不应为空.`;
   }
 }
 
@@ -29,7 +29,7 @@ export function NotEmpty() {
       target: object.constructor,
       propertyName: propertyName,
       options: {
-        message: 'At least one of files or content should not be empty.',
+        message: '至少有一个内容不为空.',
       },
       constraints: [],
       validator: NotEmptyConstraint,

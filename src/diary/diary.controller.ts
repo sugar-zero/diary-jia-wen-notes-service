@@ -44,8 +44,11 @@ export class DiaryController {
   // }
 
   @Patch('record')
-  update(@Body() patchDiaryData: CreateDiaryDto) {
-    return this.diaryService.update(patchDiaryData);
+  update(@Body() patchDiaryData: CreateDiaryDto, @Headers() header) {
+    return this.diaryService.update(
+      patchDiaryData,
+      this.jwtDecrypTool.getDecryp(header.authorization),
+    );
     // const newFileslist = req.files.map((item: any) => {
     //   return item.url;
     // });
@@ -53,7 +56,10 @@ export class DiaryController {
   }
 
   @Delete('record/:id')
-  remove(@Param('id') id: string) {
-    return this.diaryService.remove(+id);
+  remove(@Param('id') id: string, @Headers() header) {
+    return this.diaryService.remove(
+      +id,
+      this.jwtDecrypTool.getDecryp(header.authorization),
+    );
   }
 }

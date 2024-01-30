@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Headers, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Headers,
+  Put,
+  BadRequestException,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register-dto';
 import { UserLoginDto } from './dto/userlogin-dto';
+import { UpdateSecurityDto } from './dto/update-security-dto';
 import { JwtDecrypTool } from '../utils/aes';
 
 @Controller({
@@ -39,9 +48,30 @@ export class UserController {
       this.jwtDecrypTool.getDecryp(header.authorization),
     );
   }
-  // 查询单个
-  // @Get(':id')
-  // findOne(@Param('id', ParseIntPipe) id: string) {
-  //   return this.userService.findOne(+id);
-  // }
+  @Put('security')
+  UpdateSecurity(@Body() req: UpdateSecurityDto, @Headers() header) {
+    return this.userService.UpdateSecurity(
+      req,
+      this.jwtDecrypTool.getDecryp(header.authorization),
+    );
+  }
+  // 找回密码
+  @Post('forgotPassword')
+  findOne(@Body() body) {
+    return this.userService.sendForgotPasswordMail(body);
+  }
+
+  @Post('fetchValidToken')
+  findForgotPasswordUser(@Body() body) {
+    if (body.token) {
+      return this.userService.findForgotPasswordUser(body);
+    } else {
+      throw new BadRequestException('请求无效');
+    }
+  }
+
+  @Post('resetPassword')
+  resetPassword(@Body() body) {
+    return this.userService.resetPasswordFromEmail(body);
+  }
 }

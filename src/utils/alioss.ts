@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import * as OSS from 'ali-oss';
-import { prodOssConfig } from '../config.oss';
+import { ConfigService } from '@nestjs/config';
+// import { ossConfig as prodOssConfig } from '../config.prod';
+// import { ossConfig as devOssConfig } from '../config.dev2';
 
-// 实现逻辑来自https://blog.51cto.com/u_16105456/6260525,感谢大佬
+// 实现逻辑来自 https://blog.51cto.com/u_16105456/6260525 感谢大佬
 
 @Injectable()
 export class OssService {
   private client: any;
-  constructor() {
+  private ossConfig: any = this.configService.get('oss');
+  constructor(private configService: ConfigService) {
     this.client = new OSS({
-      accessKeyId: prodOssConfig.accessKeyId,
-      accessKeySecret: prodOssConfig.accessKeySecret,
-      region: prodOssConfig.region,
-      bucket: prodOssConfig.bucket,
+      accessKeyId: this.ossConfig.accessKeyId,
+      accessKeySecret: this.ossConfig.accessKeySecret,
+      region: this.ossConfig.region,
+      bucket: this.ossConfig.bucket,
     });
   }
   // 创建存储空间。
