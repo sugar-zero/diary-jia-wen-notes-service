@@ -6,12 +6,14 @@ import { CreateDiaryDto } from './dto/create-diary.dto';
 import { Diary } from './entities/diary.entity';
 import { Like } from '../like/entities/like.entity';
 import { Comment } from '../comment/entities/comment.entity';
+import { OssService } from 'src/utils/alioss';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @InjectRepository(Diary)
     private readonly diaryRepository: Repository<Diary>,
+    private readonly ossService: OssService,
   ) {}
   async createDiary({ content, files }: CreateDiaryDto, { userid }) {
     await this.diaryRepository.save({
@@ -77,7 +79,7 @@ export class DiaryService {
         ])
         .getMany();
       // console.log(diary);
-      diary.forEach((item: any) => {
+      diary.forEach(async (item: any) => {
         // 转换日记所有者显示名
         const owner = item.author.nickname
           ? item.author.nickname
@@ -106,6 +108,15 @@ export class DiaryService {
           (item: any) => item.liker.userId === userid,
         );
         item.isCurrentUserLiked = isLiked;
+        // 签名文件
+        if (item.filesList) {
+          item.filesList = await Promise.all(
+            item.filesList.map(async (file) => {
+              const signedUrl = await this.ossService.getFileSignatureUrl(file);
+              return signedUrl;
+            }),
+          );
+        }
       });
       // console.log(diary);
       return diary;
