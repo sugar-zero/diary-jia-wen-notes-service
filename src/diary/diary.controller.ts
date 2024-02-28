@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
@@ -32,9 +33,10 @@ export class DiaryController {
   }
 
   @Get('record')
-  findAll(@Headers() header) {
+  findAll(@Headers() header, @Query() page) {
     return this.diaryService.findAll(
       this.jwtDecrypTool.getDecryp(header.authorization),
+      page,
     );
   }
 

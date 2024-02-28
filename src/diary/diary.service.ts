@@ -21,16 +21,18 @@ export class DiaryService {
       filesList: files,
       user_id: userid,
     });
-    const diary = await this.findAll({ userid });
+    // const diary = await this.findAll({ userid }); 不再回调日记获取接口
     return {
       message: '📝记录完成！',
-      data: diary,
+      // data: diary,
     };
   }
 
-  async findAll({ userid }) {
+  async findAll({ userid }: any, { page, size }: any) {
     if (userid) {
-      const diary = await this.diaryRepository
+      const offset = (page - 1) * size;
+      console.log(page, size);
+      const diary = this.diaryRepository
         .createQueryBuilder('diary')
         .leftJoinAndMapOne('diary.author', 'diary.user_id', 'user')
         .leftJoinAndMapMany(
@@ -76,10 +78,14 @@ export class DiaryService {
           'comment_user.username',
           'comment_user.userid',
           'comment_user.avatar',
-        ])
-        .getMany();
-      // console.log(diary);
-      diary.forEach(async (item: any) => {
+        ]);
+      // 先获取总记录数
+      const totalCount = await diary.getCount();
+
+      // 添加分页的逻辑
+      const diaries = await diary.skip(offset).take(size).getMany();
+      // console.log(totalCount);
+      diaries.forEach(async (item: any) => {
         // 转换日记所有者显示名
         const owner = item.author.nickname
           ? item.author.nickname
@@ -119,7 +125,7 @@ export class DiaryService {
         }
       });
       // console.log(diary);
-      return diary;
+      return { diaries, totalCount };
     }
   }
 

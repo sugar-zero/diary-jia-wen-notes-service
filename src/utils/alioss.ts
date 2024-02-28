@@ -19,7 +19,7 @@ export class OssService {
     });
   }
 
-  // 上传文件到oss 并返回  图片oss 地址
+  // 上传文件到oss 并返回oss地址
   public async putOssFile(ossPath: string, localPath: string): Promise<string> {
     let res: any;
     try {
