@@ -70,4 +70,6 @@ export class Diary {
   // 一个日记对应多个评论
   @OneToMany(() => Comment, (comment) => comment.diary)
   comments: Comment[];
+  author: any;
+  isCurrentUserLiked: boolean;
 }
