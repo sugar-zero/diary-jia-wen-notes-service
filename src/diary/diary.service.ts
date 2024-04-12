@@ -7,7 +7,6 @@ import { Diary } from './entities/diary.entity';
 import { Like } from '../like/entities/like.entity';
 import { Comment } from '../comment/entities/comment.entity';
 import { OssService } from 'src/utils/alioss';
-import { Console } from 'console';
 
 @Injectable()
 export class DiaryService {
@@ -108,7 +107,6 @@ export class DiaryService {
           comment.commentator = { user, userId, userAvatar };
           delete comment.user;
           delete comment.isDeleted;
-          delete comment.id;
           return comment;
         });
 

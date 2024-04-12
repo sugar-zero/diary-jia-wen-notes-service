@@ -62,7 +62,7 @@ export class AuthGuard implements CanActivate {
       );
       if (userBlockingStatus) {
         // 如果用户账号被禁用，则抛出未授权异常
-        throw new UnauthorizedException('您的账号已被停止');
+        throw new UnauthorizedException('您的账号状态异常，请重新登录');
       } else {
         return request;
       }
