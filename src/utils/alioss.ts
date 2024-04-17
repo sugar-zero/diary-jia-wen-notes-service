@@ -37,7 +37,7 @@ export class OssService {
    */
   public async getFileSignatureUrl(filePath: string): Promise<string> {
     if (filePath == null) {
-      console.log('获取文件签名失败：文件名不能为空');
+      // console.log('获取文件签名失败：文件名不能为空');
       return null;
     }
     // 如果是一个url（早期是公共读，兼容一下）提取key用来签名

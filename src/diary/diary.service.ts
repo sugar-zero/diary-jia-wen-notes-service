@@ -128,9 +128,13 @@ export class DiaryService {
 
               // 如果是url，通过正则提取key
               let OriginalName: string;
-              if (file.startsWith('http://') || file.startsWith('https://')) {
-                const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
-                OriginalName = file.match(pattern)[0];
+              if (file) {
+                if (file.startsWith('http://') || file.startsWith('https://')) {
+                  const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
+                  OriginalName = file.match(pattern)[0];
+                } else {
+                  OriginalName = file;
+                }
               }
               return { signedUrl, OriginalName };
             }),
@@ -154,7 +158,8 @@ export class DiaryService {
       throw new BadRequestException('这篇日记不属于你,你不能修改它');
     }
     const newFileslist = patchDiaryData.files.map((item: any) => {
-      return item.name;
+      console.log(item);
+      return item.response ? item.response.data.data : item.name;
     });
     await this.diaryRepository.update(patchDiaryData.id, {
       content: patchDiaryData.content,
