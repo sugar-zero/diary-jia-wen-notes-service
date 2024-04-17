@@ -138,6 +138,14 @@ export class UserService {
     },
     { username },
   ): Promise<object> {
+    // 如果是url，通过正则提取key
+    const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+      avatar = avatar.match(pattern)[0];
+    }
+    if (userBg.startsWith('http://') || userBg.startsWith('https://')) {
+      userBg = userBg.match(pattern)[0];
+    }
     await this.userRepository.update(
       { username },
       {

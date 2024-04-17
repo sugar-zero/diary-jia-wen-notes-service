@@ -158,7 +158,6 @@ export class DiaryService {
       throw new BadRequestException('这篇日记不属于你,你不能修改它');
     }
     const newFileslist = patchDiaryData.files.map((item: any) => {
-      console.log(item);
       return item.response ? item.response.data.data : item.name;
     });
     await this.diaryRepository.update(patchDiaryData.id, {
