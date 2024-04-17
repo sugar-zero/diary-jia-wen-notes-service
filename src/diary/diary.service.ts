@@ -89,7 +89,9 @@ export class DiaryService {
 
         const owner = diary.author?.nickname || diary.author?.username;
         const ownerId = diary.author?.userid;
-        const ownerAvatar = diary.author.avatar;
+        const ownerAvatar = await this.ossService.getFileSignatureUrl(
+          diary.author.avatar,
+        );
         diary.author = { owner, ownerId, ownerAvatar };
 
         diary.likes = likesForThisDiary.map((like: any) => {
@@ -100,15 +102,19 @@ export class DiaryService {
           return like;
         });
 
-        diary.comments = commentsForThisDiary.map((comment: any) => {
-          const user = comment.user.nickname || comment.user.username;
-          const userId = comment.user.userid;
-          const userAvatar = comment.user.avatar;
-          comment.commentator = { user, userId, userAvatar };
-          delete comment.user;
-          delete comment.isDeleted;
-          return comment;
-        });
+        diary.comments = await Promise.all(
+          commentsForThisDiary.map(async (comment: any) => {
+            const user = comment.user.nickname || comment.user.username;
+            const userId = comment.user.userid;
+            const userAvatar = comment.user.avatar
+              ? await this.ossService.getFileSignatureUrl(comment.user.avatar)
+              : null;
+            comment.commentator = { user, userId, userAvatar };
+            delete comment.user;
+            delete comment.isDeleted;
+            return comment;
+          }),
+        );
 
         const isLiked = diary.likes.some(
           (like: any) => like.liker?.userId === userid,
@@ -119,7 +125,14 @@ export class DiaryService {
           diary.filesList = await Promise.all(
             diary.filesList.map(async (file) => {
               const signedUrl = await this.ossService.getFileSignatureUrl(file);
-              return signedUrl;
+
+              // 如果是url，通过正则提取key
+              let OriginalName: string;
+              if (file.startsWith('http://') || file.startsWith('https://')) {
+                const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
+                OriginalName = file.match(pattern)[0];
+              }
+              return { signedUrl, OriginalName };
             }),
           );
         }
@@ -141,9 +154,8 @@ export class DiaryService {
       throw new BadRequestException('这篇日记不属于你,你不能修改它');
     }
     const newFileslist = patchDiaryData.files.map((item: any) => {
-      return item.url ? item.url : item.response.data.data;
+      return item.name;
     });
-    // console.log(newFileslist);
     await this.diaryRepository.update(patchDiaryData.id, {
       content: patchDiaryData.content,
       filesList: newFileslist.length > 0 ? newFileslist : null,

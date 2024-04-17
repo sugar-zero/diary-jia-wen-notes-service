@@ -15,6 +15,7 @@ import { Repository, MoreThanOrEqual } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { encrypt } from '../utils/aes';
 import { MailService } from 'src/mail/mail.service';
+import { OssService } from 'src/utils/alioss';
 
 @Injectable()
 export class UserService {
@@ -26,6 +27,7 @@ export class UserService {
     private readonly banService: BanService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly ossService: OssService,
   ) {}
   /**
    * 注册新用户
@@ -100,6 +102,12 @@ export class UserService {
       select: ['username', 'nickname', 'signature', 'avatar', 'userBg'],
     });
     // 返回查询到的用户信息
+    userInfo.avatar = await this.ossService.getFileSignatureUrl(
+      userInfo.avatar,
+    );
+    userInfo.userBg = await this.ossService.getFileSignatureUrl(
+      userInfo.userBg,
+    );
     return {
       data: userInfo,
     };

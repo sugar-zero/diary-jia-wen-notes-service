@@ -36,27 +36,25 @@ export class OssService {
    * @param filePath
    */
   public async getFileSignatureUrl(filePath: string): Promise<string> {
-    // 如果是一个url（早期是公共读，兼容一下）就直接返回；是key再返回签名的url
-    const isUrl =
-      filePath.startsWith('http://') || filePath.startsWith('https://');
-
     if (filePath == null) {
       console.log('获取文件签名失败：文件名不能为空');
       return null;
     }
+    // 如果是一个url（早期是公共读，兼容一下）提取key用来签名
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
+      filePath = filePath.match(pattern)[0];
+    }
 
-    if (isUrl) {
-      return filePath;
-    } else {
-      try {
-        return this.client
-          .signatureUrl(filePath, { expires: 3600 * 3 })
-          .replace('http', 'https'); //如果加密后的url不是https那就替换一下
-      } catch (err) {
-        console.log(err);
-      }
+    try {
+      return this.client
+        .signatureUrl(filePath, { expires: 3600 * 3 })
+        .replace('http', 'https'); //如果加密后的url不是https那就替换一下
+    } catch (err) {
+      console.log(err);
     }
   }
+
   /**
    * 上传文件大小校验
    * @param localPath

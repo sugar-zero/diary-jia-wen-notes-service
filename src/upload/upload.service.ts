@@ -55,7 +55,7 @@ export class UploadService {
       );
       this.deleteLocalCacheFiles(reNameFile);
       return {
-        data: ossUrl.replace('http', 'https'),
+        data: ossUrl,
         message: '上传成功',
       };
     } catch (error) {
