@@ -16,12 +16,18 @@ export class UploadService {
     private readonly diaryService: DiaryService,
   ) {}
   // 上传图片
-  async upload(file: any, fileRoute: string): Promise<any> {
+  async upload(
+    file: any,
+    fileRoute: string,
+    fileSizeLimit?: number,
+  ): Promise<any> {
     const reNameFile = join(__dirname, `../images/${file.filename}`);
     try {
-      const ossUrl = await this.ossService.putOssFile(
+      const ossUrl = await this.ossService.validateFile(
         `/${fileRoute}/${file.filename}`,
         reNameFile,
+        file.size,
+        fileSizeLimit ? fileSizeLimit : 3,
       );
       this.deleteLocalCacheFiles(reNameFile);
       return {
@@ -30,7 +36,7 @@ export class UploadService {
       };
     } catch (error) {
       this.deleteLocalCacheFiles(reNameFile);
-      throw new BadRequestException('文件上传失败');
+      throw new BadRequestException(error);
     }
   }
   // 更新图片
@@ -39,6 +45,7 @@ export class UploadService {
     fileRoute: string,
     { diaryId },
     { userid },
+    fileSizeLimit?: number,
   ): Promise<any> {
     const reNameFile = join(__dirname, `../images/${file.filename}`);
     // 更新日记图片前先鉴权
@@ -49,9 +56,11 @@ export class UploadService {
     }
 
     try {
-      const ossUrl = await this.ossService.putOssFile(
+      const ossUrl = await this.ossService.validateFile(
         `/${fileRoute}/${file.filename}`,
         reNameFile,
+        file.size,
+        fileSizeLimit ? fileSizeLimit : 3,
       );
       this.deleteLocalCacheFiles(reNameFile);
       return {

@@ -28,7 +28,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file'))
   upload(@UploadedFile() file, @Headers() header) {
     this.jwtDecrypTool.getDecryp(header.authorization);
-    return this.uploadService.upload(file, 'images');
+    return this.uploadService.upload(file, 'images', 2);
   }
   // 上传头像
   @Post('avatar')
@@ -37,7 +37,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('avatar'))
   uploadAvatar(@UploadedFile() file, @Headers() header) {
     this.jwtDecrypTool.getDecryp(header.authorization);
-    return this.uploadService.upload(file, 'avatar');
+    return this.uploadService.upload(file, 'avatar', 1);
   }
   // 上传日记图片
   @Post('diary-image')

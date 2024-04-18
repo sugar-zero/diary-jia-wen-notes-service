@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as OSS from 'ali-oss';
 import { ConfigService } from '@nestjs/config';
+import * as CryptoJS from 'crypto-js';
 // import { ossConfig as prodOssConfig } from '../config.prod';
 // import { ossConfig as devOssConfig } from '../config.dev2';
 
@@ -10,12 +11,14 @@ import { ConfigService } from '@nestjs/config';
 export class OssService {
   private client: any;
   private ossConfig: any = this.configService.get('oss');
+  private cdnConfig: any = this.configService.get('cdn');
   constructor(private configService: ConfigService) {
     this.client = new OSS({
       accessKeyId: this.ossConfig.accessKeyId,
       accessKeySecret: this.ossConfig.accessKeySecret,
       region: this.ossConfig.region,
       bucket: this.ossConfig.bucket,
+      secure: this.ossConfig.secure,
     });
   }
 
@@ -47,9 +50,43 @@ export class OssService {
     }
 
     try {
-      return this.client
-        .signatureUrl(filePath, { expires: 3600 * 3 })
-        .replace('http', 'https'); //如果加密后的url不是https那就替换一下
+      if (this.cdnConfig.useCdn === true) {
+        const cresourceName = `/${filePath}`;
+        const cdnUrl = this.cdnConfig.cdnUrl;
+        let cdnSignedPath = `${cdnUrl}${cresourceName}`;
+        const timestamp = Math.floor(new Date().getTime() / 1000);
+        const rand = Math.floor(Math.random() * 1000000);
+        const uid = 0;
+        const secret = this.cdnConfig.secret;
+
+        const sstring =
+          cresourceName +
+          '-' +
+          timestamp +
+          '-' +
+          rand +
+          '-' +
+          uid +
+          '-' +
+          secret;
+
+        const md5hash = CryptoJS.MD5(sstring).toString();
+        return (cdnSignedPath += `?auth_key=${timestamp}-${rand}-${uid}-${md5hash}`);
+      } else {
+        if (this.ossConfig.cname === true) {
+          const originalSignedUrl = this.client.signatureUrl(filePath, {
+            expires: 3600 * 3,
+          });
+          const defaultDomain = this.ossConfig.ossUrl;
+          const cnameUrl = this.ossConfig.cnameUrl;
+
+          return originalSignedUrl.replace(defaultDomain, cnameUrl);
+        } else {
+          return this.client.signatureUrl(filePath, {
+            expires: 3600 * 3,
+          });
+        }
+      }
     } catch (err) {
       console.log(err);
     }
@@ -57,17 +94,19 @@ export class OssService {
 
   /**
    * 上传文件大小校验
-   * @param localPath
-   * @param ossPath
-   * @param size
+   * @param localPath 本地路径
+   * @param ossPath oss路径
+   * @param fileSize 文件大小
+   * @param limitSize 限制大小：M
    */
   public async validateFile(
     ossPath: string,
     localPath: string,
-    size: number,
+    fileSize: number,
+    limitSize: number,
   ): Promise<string> {
-    if (size > 5 * 1024 * 1024) {
-      throw new Error('文件大小超过限制:不得大于5MB');
+    if (fileSize > limitSize * 1024 * 1024) {
+      throw new Error(`文件大小超过限制:不得大于${limitSize}MB`);
     } else {
       return await this.putOssFile(ossPath, localPath);
       //   return await this.putOssFile(ossPath);
