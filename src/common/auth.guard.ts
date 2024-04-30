@@ -46,6 +46,7 @@ export class AuthGuard implements CanActivate {
           return route.routingInterface === path && route.method === method;
         },
       );
+      await this.cacheService.refreshCache('exemptionInterface');
       if (isPublic) {
         return true; // 如果是公开路由，则跳过鉴权
       }

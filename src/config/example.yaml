@@ -32,6 +32,7 @@ oss:
   cname: false
   ossUrl: https://your-oss-domain.com #你oss的默认域名
   cnameUrl: https://your-custom-domain.com #你的自定义域名
+
 cdn:
 #如果你的oss使用cdn，请开启；通常情况下使用cdn加速oss，oss也会使用自定义域名。但是这个时候请求资源就
 #不再通过oss了，而是需要鉴权cdn url。如果设置为true，在获取oss鉴权链接时会使用cdn鉴权方法返回cdn url
@@ -54,3 +55,7 @@ mail:
     user: your-email@example.com
     password: your-email-password
   from: 发件人名字 <your-email@example.com>
+
+system:
+  #是否完全开放管理员接口（/api/v{版本号}/admin/{path}），不受维护模式约束;关闭的情况下你需要配置维护下放行的接口
+  freeManagementInterface: true
