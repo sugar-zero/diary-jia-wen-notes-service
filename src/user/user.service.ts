@@ -177,7 +177,13 @@ export class UserService {
    * @throws {ForbiddenException} 用户被封禁异常
    * @throws {BadRequestException} 参数错误异常
    */
-  async login({ username, password, remember }: UserLoginDto) {
+  async login({ username, password, remember }: UserLoginDto): Promise<{
+    message: string;
+    data: {
+      token: string;
+      userInfo: number;
+    };
+  }> {
     // 验证加密密码
     password = encrypt(password);
     const userInfo = await this.userRepository.findOne({
@@ -195,6 +201,7 @@ export class UserService {
         delete userBlockingStatus.id;
         throw new ForbiddenException(userBlockingStatus);
       }
+
       return {
         message: '登录成功',
         data: {

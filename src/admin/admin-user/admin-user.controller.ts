@@ -1,34 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AdminUserService } from './admin-user.service';
-import { CreateAdminUserDto } from './dto/create-admin-user.dto';
-import { UpdateAdminUserDto } from './dto/update-admin-user.dto';
+import { AdminUserLoginDto } from './dto/admin-user-login.dto';
 
-@Controller('admin-user')
+@Controller({
+  path: 'admin/user',
+  version: '1',
+})
 export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) {}
 
-  @Post()
-  create(@Body() createAdminUserDto: CreateAdminUserDto) {
-    return this.adminUserService.create(createAdminUserDto);
+  @Post('login')
+  login(@Body() req: AdminUserLoginDto) {
+    return this.adminUserService.login(req);
   }
 
-  @Get()
-  findAll() {
-    return this.adminUserService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminUserService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminUserDto: UpdateAdminUserDto) {
-    return this.adminUserService.update(+id, updateAdminUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminUserService.remove(+id);
+  @Get('info')
+  admin_user_info() {
+    return this.adminUserService.admin_user_info();
   }
 }

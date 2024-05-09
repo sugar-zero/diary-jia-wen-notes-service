@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
         },
       );
       if (isPublic) {
-        return true; // 如果是公开路由，则跳过鉴权
+        return true; // 如果是公开路由，则跳过鉴权(用户端)
       }
     } catch (e) {
       const publicRoutes =
@@ -48,7 +48,7 @@ export class AuthGuard implements CanActivate {
       );
       await this.cacheService.refreshCache('exemptionInterface');
       if (isPublic) {
-        return true; // 如果是公开路由，则跳过鉴权
+        return true; // 如果是公开路由，则跳过鉴权（用户端）
       }
     }
 
@@ -68,6 +68,7 @@ export class AuthGuard implements CanActivate {
         return request;
       }
     } else {
+      console.log(userinfo);
       throw new UnauthorizedException('登录失效,请重新登陆');
     }
   }

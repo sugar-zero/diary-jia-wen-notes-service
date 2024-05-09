@@ -15,7 +15,7 @@ import { CommentModule } from './comment/comment.module';
 import { LikeModule } from './like/like.module';
 import { SubscribeModule } from './subscribe/subscribe.module';
 import { BanModule } from './block/block.module';
-// import { AdminUserModule } from './admin/admin-user/admin-user.module';
+import { AdminUserModule } from './admin/admin-user/admin-user.module';
 // import { AdminDiaryModule } from './admin/admin-diary/admin-diary.module';
 // import { AdminBlockModule } from './admin/admin-block/admin-block.module';
 // import { AdminSubscribeModule } from './admin/admin-subscribe/admin-subscribe.module';
@@ -23,6 +23,7 @@ import { CacheModule } from './admin/cache/cache.module';
 import { ExemptionInterfaceModule } from './admin/exemption-interface/exemption-interface.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
+import { AdminMenusModule } from './admin/admin-menus/admin-menus.module';
 
 console.log(
   '当前运行环境:',
@@ -56,13 +57,14 @@ console.log(
     LikeModule,
     SubscribeModule,
     BanModule,
-    // AdminUserModule,
+    AdminUserModule,
     // AdminDiaryModule,
     // AdminBlockModule,
     // AdminSubscribeModule,
     CacheModule,
     ExemptionInterfaceModule,
     MailModule,
+    AdminMenusModule,
   ],
   controllers: [AppController],
   providers: [
