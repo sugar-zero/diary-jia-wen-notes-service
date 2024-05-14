@@ -6,8 +6,10 @@ import {
 import { AdminUserLoginDto } from './dto/admin-user-login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
+import { UserRole } from './entities/admin-userRole.entity';
+import { RolePermission } from '../admin-permissions/entities/admin-rolePermissions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { BanService } from 'src/block/block.service';
 import { encrypt } from 'src/utils/aes';
 
@@ -15,6 +17,10 @@ import { encrypt } from 'src/utils/aes';
 export class AdminUserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(RolePermission)
+    private readonly rolePermission: Repository<RolePermission>,
+    @InjectRepository(UserRole)
+    private readonly userRoleRepository: Repository<UserRole>,
     private readonly banService: BanService,
     private readonly jwtService: JwtService,
   ) {}
@@ -77,10 +83,58 @@ export class AdminUserService {
     }
   }
 
-  async admin_user_info() {
+  /**
+   * 获取用户信息（权限）
+   */
+  async admin_user_info({ userid }: { userid: number }) {
+    const userRoles = await this.userRoleRepository.find({
+      where: { userId: userid },
+      select: ['roleId'],
+    });
+    if (!userRoles) {
+      throw new BadRequestException('用户无任何权限');
+    }
+    const userRolesId = userRoles.map((ur) => ur.roleId);
+    const rolePermission = await this.rolePermission.find({
+      where: { roleId: In(userRolesId) },
+      relations: ['permission'],
+    });
+    // 合并并返回用户的所有权限
+
+    const userPermissions = rolePermission.map((rp) => {
+      return {
+        label: rp.permission.label,
+        value: rp.permission.name,
+      };
+    });
     return {
       avatar: 'https://dummyimage.com/234x60',
-      permissions: [{ label: '仪表盘', value: 'dashboard_console' }],
+      permissions: userPermissions,
     };
+  }
+
+  /**
+   * 仅获取用户权限组
+   * @param userid 用户id
+   * @returns 用户权限组
+   */
+  async GetUserAuth({ userid }: { userid: number }) {
+    const userRoles = await this.userRoleRepository.find({
+      where: { userId: userid },
+      select: ['roleId'],
+    });
+    if (!userRoles) {
+      return [];
+    }
+    const userRolesId = userRoles.map((ur) => ur.roleId);
+    const rolePermission = await this.rolePermission.find({
+      where: { roleId: In(userRolesId) },
+      relations: ['permission'],
+    });
+    // 合并并返回用户的所有权限
+
+    return rolePermission.map((rp) => {
+      return rp.permission.name;
+    });
   }
 }

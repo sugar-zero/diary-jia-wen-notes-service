@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { RolePermission } from 'src/admin/admin-permissions/entities/admin-rolePermissions.entity';
+import { UserRole } from './admin-userRole.entity';
 
 @Entity()
-export class UserRole {
+export class Role {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,9 +21,9 @@ export class UserRole {
   })
   label: string;
 
-  @Column({
-    type: 'json',
-    comment: '权限组',
-  })
-  permission: object;
+  @OneToMany(() => RolePermission, (rolePermissions) => rolePermissions.role)
+  rolePermissions: RolePermission[];
+
+  @OneToMany(() => UserRole, (userRole) => userRole.roleId)
+  userRoles: UserRole[];
 }

@@ -24,6 +24,7 @@ import { ExemptionInterfaceModule } from './admin/exemption-interface/exemption-
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
 import { AdminMenusModule } from './admin/admin-menus/admin-menus.module';
+import { AdminPermissionsModule } from './admin/admin-permissions/admin-permissions.module';
 
 console.log(
   '当前运行环境:',
@@ -65,6 +66,7 @@ console.log(
     ExemptionInterfaceModule,
     MailModule,
     AdminMenusModule,
+    AdminPermissionsModule,
   ],
   controllers: [AppController],
   providers: [
