@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AdminBlockService } from './admin-block.service';
 import { CreateAdminBlockDto } from './dto/create-admin-block.dto';
 import { UpdateAdminBlockDto } from './dto/update-admin-block.dto';
@@ -23,7 +31,10 @@ export class AdminBlockController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminBlockDto: UpdateAdminBlockDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAdminBlockDto: UpdateAdminBlockDto,
+  ) {
     return this.adminBlockService.update(+id, updateAdminBlockDto);
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Headers } from '@nestjs/common';
+import { Controller, Get, Headers, Put, Body } from '@nestjs/common';
 import { AdminMenusService } from './admin-menus.service';
 import { RootMenuMeta } from './admin-menus.service';
 import { JwtDecrypTool } from 'src/utils/aes';
@@ -23,5 +23,10 @@ export class AdminMenusController {
   @Get('list')
   findMenuList(): Promise<RootMenuMeta[]> {
     return this.adminMenusService.findMenuList();
+  }
+
+  @Put()
+  updateMenu(@Body() menu) {
+    return this.adminMenusService.updateMenu(menu);
   }
 }

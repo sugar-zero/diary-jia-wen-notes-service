@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Equal, IsNull } from 'typeorm';
 import { Menu } from './entities/admin-menu.entity';
+import { MenuMeta } from './entities/menu-meta.entity';
 import { AdminUserService } from '../admin-user/admin-user.service';
 
 export interface RootMenuMeta {
@@ -18,6 +19,8 @@ export class AdminMenusService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
+    @InjectRepository(MenuMeta)
+    private readonly menuMetaRepository: Repository<MenuMeta>,
     private readonly adminUserService: AdminUserService,
   ) {}
   /**
@@ -157,6 +160,39 @@ export class AdminMenusService {
 
         return formattedMenu;
       }),
+    );
+  }
+
+  /**
+   * 更新菜单
+   */
+  async updateMenu(menu): Promise<any> {
+    if (menu.meta) {
+      const metaData = menu.meta;
+      this.menuMetaRepository.update(
+        { id: metaData.id },
+        {
+          icon: metaData.icon,
+          affix: metaData.affix,
+          permissions:
+            Array.isArray(metaData.permissions) &&
+            metaData.permissions.length > 0
+              ? metaData.permissions
+              : null,
+          sort: metaData.sort,
+          title: metaData.title,
+          hidden: metaData.hidden,
+        },
+      );
+    }
+
+    await this.menuRepository.update(
+      { id: menu.id },
+      {
+        name: menu.key,
+        path: menu.path,
+        redirect: menu.redirect,
+      },
     );
   }
 }
