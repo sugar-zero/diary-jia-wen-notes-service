@@ -34,7 +34,7 @@ export class AdminMenusService {
       relations: ['children', 'children.meta', 'meta'],
       order: {
         meta: {
-          sort: 'DESC', // 使用 DESC 进行倒序排序
+          sort: 'ASC',
         },
       },
     });
@@ -71,7 +71,7 @@ export class AdminMenusService {
       relations: ['children', 'children.meta', 'meta'],
       order: {
         meta: {
-          sort: 'DESC', // 使用 DESC 进行倒序排序
+          sort: 'ASC', // 使用 DESC 进行倒序排序
         },
       },
     });
@@ -125,7 +125,7 @@ export class AdminMenusService {
       relations: ['children', 'children.meta', 'meta'],
       order: {
         meta: {
-          sort: 'DESC', // 使用 DESC 进行倒序排序
+          sort: 'ASC',
         },
       },
     });
@@ -172,7 +172,7 @@ export class AdminMenusService {
       this.menuMetaRepository.update(
         { id: metaData.id },
         {
-          icon: metaData.icon,
+          icon: !metaData.icon ? null : metaData.icon,
           affix: metaData.affix,
           permissions:
             Array.isArray(metaData.permissions) &&
@@ -194,5 +194,8 @@ export class AdminMenusService {
         redirect: menu.redirect,
       },
     );
+    return {
+      message: '更新成功',
+    };
   }
 }

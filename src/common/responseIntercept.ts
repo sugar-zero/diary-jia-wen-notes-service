@@ -132,9 +132,6 @@ export class ResponseIntercept implements NestInterceptor {
           message: 'success',
         };
       }),
-      catchError((err) => {
-        return err;
-      }),
     );
   }
 }
