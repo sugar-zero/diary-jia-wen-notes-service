@@ -5,7 +5,11 @@ import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
 import { ResponseIntercept } from './common/responseIntercept';
-import { AuthGuard } from './common/auth.guard';
+import { AuthGuard } from './common/guards/auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { BanStatusGuard } from 'src/common/guards/ban-status.guard';
+import { PublicRouteGuard } from 'src/common/guards/route.guard';
+import { PermissionsGuard } from 'src/common/guards/permissions.guard';
 import configuration from './config/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -73,6 +77,10 @@ console.log(
     AppService,
     { provide: APP_INTERCEPTOR, useClass: ResponseIntercept },
     { provide: APP_GUARD, useClass: AuthGuard },
+    JwtAuthGuard,
+    BanStatusGuard,
+    PublicRouteGuard,
+    PermissionsGuard,
   ],
 })
 export class AppModule {}

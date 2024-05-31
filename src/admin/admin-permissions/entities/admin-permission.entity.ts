@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { RolePermission } from './admin-rolePermissions.entity';
 
 @Entity()
@@ -12,13 +18,16 @@ export class Permissions {
   @Column({ comment: '权限描述' })
   label: string;
 
+  @Column({ type: 'json', comment: '限制权限', nullable: true })
+  limiter: string[];
+
   @Column({ default: () => 'CURRENT_TIMESTAMP', comment: '创建时间' })
   CreatedAt: Date;
 
   @Column({ nullable: true, comment: '更新时间' })
   UpdatedAt: Date;
 
-  @Column({ nullable: true, comment: '删除时间' })
+  @DeleteDateColumn({ comment: '删除时间' })
   DeletedAt: Date;
 
   @OneToMany(

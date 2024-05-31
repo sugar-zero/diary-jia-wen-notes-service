@@ -4,7 +4,7 @@ import type {
   NestInterceptor,
 } from '@nestjs/common';
 import type { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs';
+import { map } from 'rxjs';
 import {
   BadRequestException,
   Injectable,

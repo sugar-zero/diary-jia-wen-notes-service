@@ -4,12 +4,11 @@ import { AdminMenusController } from './admin-menus.controller';
 import { Menu } from './entities/admin-menu.entity';
 import { MenuMeta } from './entities/menu-meta.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminUserModule } from '../admin-user/admin-user.module';
-import { JwtDecrypTool } from 'src/utils/aes';
+import { AdminPermissionsModule } from '..//admin-permissions/admin-permissions.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Menu, MenuMeta]), AdminUserModule],
+  imports: [TypeOrmModule.forFeature([Menu, MenuMeta]), AdminPermissionsModule],
   controllers: [AdminMenusController],
-  providers: [AdminMenusService, JwtDecrypTool],
+  providers: [AdminMenusService],
 })
 export class AdminMenusModule {}

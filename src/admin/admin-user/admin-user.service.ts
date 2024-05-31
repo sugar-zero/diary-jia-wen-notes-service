@@ -7,11 +7,15 @@ import { AdminUserLoginDto } from './dto/admin-user-login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserRole } from './entities/admin-userRole.entity';
+import { Role } from './entities/admin-user.entity';
 import { RolePermission } from '../admin-permissions/entities/admin-rolePermissions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { BanService } from 'src/block/block.service';
 import { encrypt } from 'src/utils/aes';
+import { AdminPermissionsService } from '../admin-permissions/admin-permissions.service';
+import { AdminRoleUpdateDto } from './dto/admin-role-update.dto';
+import { AdminRoleCreateDto } from './dto/admin-role-create.dto';
 
 @Injectable()
 export class AdminUserService {
@@ -21,8 +25,11 @@ export class AdminUserService {
     private readonly rolePermission: Repository<RolePermission>,
     @InjectRepository(UserRole)
     private readonly userRoleRepository: Repository<UserRole>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
     private readonly banService: BanService,
     private readonly jwtService: JwtService,
+    private readonly adminPermissionsService: AdminPermissionsService,
   ) {}
 
   /**
@@ -66,13 +73,22 @@ export class AdminUserService {
           throw new ForbiddenException(userBlockingStatus);
         }
       }
+      // 获取用户角色与权限
+      const userRoleAndPermission = await this.admin_user_info({
+        userid: userInfo.userid,
+      });
       // 登录成功，返回成功信息和token
       return {
         message: '登录成功',
         data: {
           token: this.jwtService.sign(
-            { userid: userInfo.userid, username: userInfo.username },
-            { expiresIn: '1h' },
+            {
+              userid: userInfo.userid,
+              username: userInfo.username,
+              role: userRoleAndPermission.role,
+              permissions: userRoleAndPermission.permissions,
+            },
+            { expiresIn: '3h' },
           ),
           userInfo: userInfo.userid,
         },
@@ -99,42 +115,271 @@ export class AdminUserService {
       where: { roleId: In(userRolesId) },
       relations: ['permission'],
     });
+
+    //获取角色数据
+    const roleInfo = await this.roleRepository.find({
+      where: { id: In(userRolesId) },
+    });
     // 合并并返回用户的所有权限
 
-    const userPermissions = rolePermission.map((rp) => {
-      return {
-        label: rp.permission.label,
-        value: rp.permission.name,
-      };
-    });
+    const uniquePermissions = new Set<string>();
+    const userPermissions = rolePermission
+      .map((rp) => {
+        const permissionLabelValue = `${rp.permission.label}:${rp.permission.name}`;
+        if (!uniquePermissions.has(permissionLabelValue)) {
+          uniquePermissions.add(permissionLabelValue);
+          return {
+            label: rp.permission.label,
+            value: rp.permission.name,
+          };
+        }
+      })
+      .filter(Boolean);
     return {
       avatar: 'https://dummyimage.com/234x60',
       permissions: userPermissions,
+      role: roleInfo.map((r) => {
+        return {
+          id: r.id,
+          roleKey: r.roleKey,
+          label: r.label,
+          soft: r.soft,
+        };
+      }),
     };
+  }
+  /**
+   * 获取角色信息
+   */
+  async getRole(label?: string): Promise<any> {
+    if (label) {
+      return await this.roleRepository
+        .createQueryBuilder('role')
+        .where('role.DeletedAt IS NULL')
+        .andWhere('(role.label LIKE :label)', {
+          label: `%${label}%`,
+        })
+        .getMany();
+    } else {
+      return await this.roleRepository.find({
+        where: {
+          DeletedAt: IsNull(),
+        },
+        order: {
+          soft: 'DESC',
+        },
+      });
+    }
+    // const [list, total] = await this.roleRepository.findAndCount({
+    //   skip: (page - 1) * limit,
+    //   take: limit,
+    // });
+    // 计算总页数
+    // const pageCount = Math.ceil(total / limit);
+    // return {
+    //   list,
+    // pageInfo: {
+    //   current: Number(page),
+    //   pageCount,
+    //   pagesize: Number(limit),
+    //   total,
+    // },
+    // };
   }
 
   /**
-   * 仅获取用户权限组
-   * @param userid 用户id
-   * @returns 用户权限组
+   * 更新角色信息
    */
-  async GetUserAuth({ userid }: { userid: number }) {
-    const userRoles = await this.userRoleRepository.find({
-      where: { userId: userid },
-      select: ['roleId'],
+  async updateRole(data: AdminRoleUpdateDto): Promise<any> {
+    const role = await this.roleRepository.find({
+      where: {
+        id: data.id,
+      },
     });
-    if (!userRoles) {
-      return [];
+    if (!role) {
+      throw new BadRequestException('角色不存在');
     }
-    const userRolesId = userRoles.map((ur) => ur.roleId);
-    const rolePermission = await this.rolePermission.find({
-      where: { roleId: In(userRolesId) },
-      relations: ['permission'],
-    });
-    // 合并并返回用户的所有权限
+    try {
+      const roleUpdate = await this.roleRepository.update(
+        {
+          id: data.id,
+        },
+        {
+          soft: data.soft,
+          label: data.label,
+          UpdatedAt: new Date(),
+        },
+      );
+      if (roleUpdate) {
+        if (
+          this.adminPermissionsService.UpdateRoleAuth(data.id, data.permissions)
+        ) {
+          return {
+            message: '更新成功',
+          };
+        }
+      }
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
 
-    return rolePermission.map((rp) => {
-      return rp.permission.name;
+  /**
+   * 创建新角色
+   */
+  async createRole(data: AdminRoleCreateDto): Promise<any> {
+    //查一下角色是否存在
+    const role = await this.roleRepository.findOne({
+      where: {
+        label: data.label,
+      },
     });
+    if (role) {
+      throw new BadRequestException('角色已存在');
+    }
+
+    //随机一个8位有大小字母与数字的组合作为Key
+    const roleKey = this.generateKey();
+    const roleCreate = await this.roleRepository.save({
+      roleKey,
+      label: data.label,
+      soft: data.soft,
+    });
+    const createRoleAuth = await this.adminPermissionsService.UpdateRoleAuth(
+      roleCreate.id,
+      data.permissions,
+    );
+    if (createRoleAuth || roleCreate) {
+      return {
+        message: '角色创建完成',
+      };
+    }
+  }
+
+  //生成随机Key
+  private generateKey(length: number = 8): string {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charactersLength);
+      result += characters[randomIndex];
+    }
+
+    return result;
+  }
+
+  /**
+   * 查询被删除的角色
+   */
+  async getRoleRecycle(label) {
+    if (label) {
+      return await this.roleRepository
+        .createQueryBuilder('permissions')
+        .where('role.DeletedAt IS NOT NULL')
+        .andWhere('(role.label LIKE :label)', {
+          label: `%${label}%`,
+        })
+        .withDeleted()
+        .getMany();
+    } else {
+      return await this.roleRepository.find({
+        where: {
+          DeletedAt: Not(IsNull()),
+        },
+        withDeleted: true,
+      });
+    }
+  }
+  /**
+   * 软删除角色
+   */
+  async softDeleteRole(id: number) {
+    const role = await this.roleRepository.findOne({
+      where: {
+        id,
+        DeletedAt: IsNull(),
+      },
+    });
+    if (!role) {
+      throw new BadRequestException('角色不存在');
+    }
+    //角色是否有用户
+    const roleUser = await this.userRoleRepository.find({
+      where: {
+        roleId: id,
+      },
+    });
+    if (roleUser.length) {
+      throw new BadRequestException(`该角色已授权到用户，请先取消授权`);
+    }
+    const deleteResult = await this.roleRepository.softDelete(id);
+    if (deleteResult.affected) {
+      return {
+        message: '角色删除成功',
+      };
+    } else {
+      throw new BadRequestException('角色删除失败');
+    }
+  }
+
+  /**
+   * 硬删除角色
+   */
+  async hardDeleteRole(id: number) {
+    const role = await this.roleRepository.findOne({
+      where: {
+        id,
+        DeletedAt: IsNull(),
+      },
+    });
+    if (!role) {
+      throw new BadRequestException('角色不存在');
+    }
+    //角色是否有用户
+    const roleUser = await this.userRoleRepository.find({
+      where: {
+        roleId: id,
+      },
+    });
+    if (roleUser.length) {
+      throw new BadRequestException(`该角色已授权到用户，请先取消授权`);
+    }
+    try {
+      const deleteResult = await this.roleRepository.delete({ id: id });
+      if (deleteResult.affected) {
+        return {
+          message: '角色删除成功',
+        };
+      } else {
+        throw new BadRequestException('角色删除失败');
+      }
+    } catch (e) {
+      throw new BadRequestException('您要先卸载该角色的权限才能继续操作');
+    }
+  }
+
+  /**
+   * 回滚角色
+   */
+  async rollbackRole(id: number) {
+    const permission = await this.roleRepository.findOne({
+      where: {
+        id,
+      },
+      withDeleted: true,
+    });
+    if (!permission) {
+      throw new BadRequestException('角色不存在');
+    }
+    permission.DeletedAt = null;
+    const rollbackResult = await this.roleRepository.save(permission);
+    if (rollbackResult) {
+      return {
+        message: '角色恢复成功',
+      };
+    }
   }
 }

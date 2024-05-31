@@ -6,12 +6,15 @@ import { User } from 'src/user/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtDecrypTool } from 'src/utils/aes';
 import { UserRole } from './entities/admin-userRole.entity';
+import { Role } from './entities/admin-user.entity';
 import { RolePermission } from '../admin-permissions/entities/admin-rolePermissions.entity';
+import { AdminPermissionsModule } from '../admin-permissions/admin-permissions.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserRole, RolePermission]),
+    TypeOrmModule.forFeature([User, UserRole, RolePermission, Role]),
     BanModule,
+    AdminPermissionsModule,
   ],
   controllers: [AdminUserController],
   providers: [AdminUserService, JwtDecrypTool],

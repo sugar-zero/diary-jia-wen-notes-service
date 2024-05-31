@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Equal, IsNull } from 'typeorm';
 import { Menu } from './entities/admin-menu.entity';
 import { MenuMeta } from './entities/menu-meta.entity';
-import { AdminUserService } from '../admin-user/admin-user.service';
+import { AdminPermissionsService } from '../admin-permissions/admin-permissions.service';
 
 export interface RootMenuMeta {
   name: string;
@@ -21,13 +21,14 @@ export class AdminMenusService {
     private readonly menuRepository: Repository<Menu>,
     @InjectRepository(MenuMeta)
     private readonly menuMetaRepository: Repository<MenuMeta>,
-    private readonly adminUserService: AdminUserService,
+    private readonly adminPermissionsService: AdminPermissionsService,
   ) {}
   /**
    * @returns 菜单列表
    */
-  async findMenus(userid): Promise<RootMenuMeta[]> {
-    const userPermissions = await this.adminUserService.GetUserAuth(userid);
+  async findMenus({ userid }): Promise<RootMenuMeta[]> {
+    const userPermissions =
+      await this.adminPermissionsService.GetUserAuth(userid);
     // 获取一级菜单
     const rootMenus = await this.menuRepository.find({
       where: { parent: IsNull() },
@@ -119,6 +120,7 @@ export class AdminMenusService {
    * @returns 菜单列表
    */
   async findMenuList(): Promise<any> {
+    // await this.adminPermissionsService.filter(userid, ['menus:list']);
     // 获取一级菜单
     const rootMenus = await this.menuRepository.find({
       where: { parent: IsNull() },

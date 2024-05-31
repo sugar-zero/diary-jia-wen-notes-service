@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-// import { ResponseIntercept } from './common/responseIntercept';
 import { AbnormalFilter } from './common/abnormalFilter';
 import * as bodyParser from 'body-parser';
 
@@ -12,7 +11,12 @@ import * as bodyParser from 'body-parser';
  */
 async function bootstrap() {
   // 创建一个NestFactory实例，并使用AppModule进行初始化
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? false
+        : ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
   // 启用版本号
   app.enableVersioning({
     type: VersioningType.URI,
@@ -24,8 +28,6 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, 'images'), {
     prefix: '/static',
   });
-  //  全局拦截器
-  // app.useGlobalInterceptors(new ResponseIntercept());
   // 全局异常过滤器
   app.useGlobalFilters(new AbnormalFilter());
   // 全局管道
