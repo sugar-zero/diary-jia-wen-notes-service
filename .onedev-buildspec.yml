@@ -42,7 +42,7 @@ jobs:
     artifacts: dev\-@build_number@\-@script:builtin:node:determine-project-version@.tar.gz
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
-  - !BranchUpdateTrigger
+  - !TagCreateTrigger
     branches: develop
   retryCondition: never
   maxRetries: 3
