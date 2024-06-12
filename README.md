@@ -16,13 +16,13 @@
 
 本项目是日记项目的后端，无法单独使用，需要配合前端使用
 
-<a href="https://gitee.com/SugarZero/diary-jia-wen-notes">
+<a href="https://gitee.com/SugarZero/diary-jia-wen-notes" target="_blank">
     <img src="https://img.shields.io/badge/前端-Gitee-C71D23" alt="Gitee">
 </a>
-<a href="https://github.com/sugar-zero/diary-jia-wen-notes">
+<a href="https://github.com/sugar-zero/diary-jia-wen-notes" target="_blank">
     <img src="https://img.shields.io/badge/前端-Github-181717" alt="Github">
 </a>
-<a href="https://amedev.amesucre.com/diary">
+<a href="https://amedev.amesucre.com/diary" target="_blank">
     <img src="https://img.shields.io/badge/前端-AmeDev (Main)-52A1F8" alt="AmeDev">
 </a>
 
@@ -62,6 +62,6 @@ $ pnpm run build:one
 
 ## 开箱即用的包
 
-<a href="https://amedev.amesucre.com/diary/diary-serivce/~builds?query=successful+and+~release~">
+<a href="https://amedev.amesucre.com/diary/diary-serivce/~builds?query=successful+and+~release~" target="_blank">
     <img src="https://img.shields.io/badge/dist(With Env)-AmeDev-52A1F8" alt="Distribution on AmeDev">
 </a>
