@@ -130,13 +130,13 @@ jobs:
       commands: |
         npm install
         npm run build:one
-        tar cf @tag@-@script:builtin:node:determine-project-version@-withEnv.tar.gz dist/ node_modules/
-        tar cf @tag@-@script:builtin:node:determine-project-version@-noEnv.tar.gz dist/
+        tar cf @tag@-@commit_hash@-withEnv.tar.gz dist/ node_modules/
+        tar cf @tag@-@commit_hash@-noEnv.tar.gz dist/
     useTTY: true
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !PublishArtifactStep
     name: publish
-    artifacts: '@tag@\-@script:builtin:node:determine-project-version@*.tar.gz'
+    artifacts: '@tag@\-@commit_hash@*.tar.gz'
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
   - !TagCreateTrigger
