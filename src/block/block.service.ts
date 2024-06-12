@@ -33,7 +33,28 @@ export class BanService {
   //   return `This action updates a #${id} ban`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} ban`;
-  // }
+  async blockUser(
+    userid: number,
+    begin_time: number,
+    end_time: number,
+    prompt: string,
+  ) {
+    return await this.blockRepository.insert({
+      user_id: { userid },
+      begin_time: new Date(begin_time),
+      end_time: new Date(end_time),
+      prompt,
+    });
+  }
+  async unblock(userid: number) {
+    const beforeUnblockInfo = await this.blockRepository.findOne({
+      where: {
+        user_id: { userid },
+      },
+    });
+    return await this.blockRepository.update(userid, {
+      end_time: new Date(0),
+      prompt: JSON.stringify(beforeUnblockInfo), //保存之前封禁的信息
+    });
+  }
 }

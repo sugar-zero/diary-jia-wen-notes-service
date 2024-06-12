@@ -2,7 +2,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { BanService } from 'src/block/block.service';
 
@@ -14,11 +14,18 @@ export class BanStatusGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const userinfo = request.headers.userinfo;
 
+    //用户豁免权
+    const immunity = userinfo.permissions.some(
+      (permissions) => permissions.value === 'user:immunity',
+    );
+    if (immunity) return true;
+
+    //检测用户是否被封禁
     const userBlockingStatus = await this.banService.userBlockingStatus(
       userinfo.userid,
     );
     if (userBlockingStatus) {
-      throw new UnauthorizedException('您的账号状态异常，请重新登录');
+      throw new ForbiddenException('您的账号状态异常，请重新登录');
     }
 
     return true;

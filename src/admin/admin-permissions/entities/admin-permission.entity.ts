@@ -30,6 +30,9 @@ export class Permissions {
   @DeleteDateColumn({ comment: '删除时间' })
   DeletedAt: Date;
 
+  @Column({ comment: '说明', nullable: true, length: 50 })
+  illustrate: string;
+
   @OneToMany(
     () => RolePermission,
     (rolePermissions) => rolePermissions.permissionId,

@@ -31,6 +31,12 @@ export class AdminUserController {
     return this.adminUserService.admin_user_info(header.userinfo);
   }
 
+  @Get('list')
+  @Permissions(['user:list'])
+  userList(@Query() query) {
+    return this.adminUserService.userList(query.name);
+  }
+
   @Get('role/list')
   @Permissions(['role:list'])
   roleList(@Query() query) {
@@ -39,14 +45,14 @@ export class AdminUserController {
 
   @Put('role')
   @Permissions(['role:edit'])
-  updateRole(@Body() req: AdminRoleUpdateDto) {
-    return this.adminUserService.updateRole(req);
+  updateRole(@Body() req: AdminRoleUpdateDto, @Headers() header) {
+    return this.adminUserService.updateRole(req, header);
   }
 
   @Post('role')
   @Permissions(['role:create'])
-  createRole(@Body() req: AdminRoleCreateDto) {
-    return this.adminUserService.createRole(req);
+  createRole(@Body() req: AdminRoleCreateDto, @Headers() header) {
+    return this.adminUserService.createRole(req, header);
   }
 
   @Get('role/recycle')
@@ -57,13 +63,13 @@ export class AdminUserController {
 
   @Put('role/delete')
   @Permissions(['role:delete'])
-  deleteRole(@Body() req) {
+  softDeleteRole(@Body() req) {
     return this.adminUserService.softDeleteRole(req.id);
   }
 
   @Delete('role/delete')
   @Permissions(['role:hard_delete'])
-  softDeleteRole(@Body() req) {
+  hardDeleteRole(@Body() req) {
     return this.adminUserService.hardDeleteRole(req.id);
   }
 
@@ -71,5 +77,34 @@ export class AdminUserController {
   @Permissions(['role:rollback'])
   rollbackPermissions(@Body() body) {
     return this.adminUserService.rollbackRole(body.id);
+  }
+  @Get('role')
+  @Permissions(['user:edit'])
+  fetchRoles(@Headers() header) {
+    return this.adminUserService.fetchRoles(header.userinfo);
+  }
+
+  @Post('block')
+  @Permissions(['user:block'])
+  blockUser(@Body() body) {
+    return this.adminUserService.blockUser(body);
+  }
+
+  @Put('unblock')
+  @Permissions(['user:unblock'])
+  unblockUser(@Body() body) {
+    return this.adminUserService.unblockUser(body.userid);
+  }
+
+  @Post('create')
+  @Permissions(['user:create'])
+  createUser(@Body() body) {
+    return this.adminUserService.createUser(body);
+  }
+
+  @Put('update')
+  @Permissions(['user:edit'])
+  updateUser(@Body() body, @Headers() header) {
+    return this.adminUserService.updateUser(body, header.userinfo);
   }
 }

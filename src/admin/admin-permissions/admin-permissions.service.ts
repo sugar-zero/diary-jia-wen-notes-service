@@ -22,8 +22,7 @@ export class AdminPermissionsService {
   /**
    * @returns 获取权限列表（权限管理用）
    */
-  async getPermissionsList({ userid }): Promise<any> {
-    await this.filter(userid, ['auth:list']);
+  async getPermissionsList(): Promise<any> {
     return await this.PermissionsRepository.find();
   }
 
@@ -31,7 +30,6 @@ export class AdminPermissionsService {
    * @returns 获取权限列表（角色管理用）
    */
   async getPermissionsList_Role(userInfo): Promise<any> {
-    await this.filter(userInfo.userid, ['role:list']);
     const permissions = await this.PermissionsRepository.find();
     const filteredPermissions = permissions.filter((permission) => {
       const limiter = Array.isArray(permission.limiter)
@@ -50,8 +48,7 @@ export class AdminPermissionsService {
   }
 
   //检索权限值
-  async getPermissionsByName(name: string, { userid }) {
-    await this.filter(userid, ['auth:list']);
+  async getPermissionsByName(name: string) {
     return await this.PermissionsRepository.createQueryBuilder('permissions')
       .where('(permissions.name LIKE :name OR permissions.label LIKE :name)', {
         name: `%${name}%`,
@@ -82,8 +79,7 @@ export class AdminPermissionsService {
   /**
    * 恢复权限
    */
-  async rollbackPermission(id: number, { userid }) {
-    await this.filter(userid, ['auth:rollback']);
+  async rollbackPermission(id: number) {
     const permission = await this.PermissionsRepository.findOne({
       where: {
         id,
@@ -105,9 +101,7 @@ export class AdminPermissionsService {
   /**
    * 软删除权限
    */
-  async softDeletePermission(id: number, { userid }) {
-    await this.filter(userid, ['auth:delete']);
-
+  async softDeletePermission(id: number) {
     const permission = await this.PermissionsRepository.findOne({
       where: {
         id,
@@ -149,7 +143,7 @@ export class AdminPermissionsService {
 
   // 创建权限
   async createPermission(data: any) {
-    const { name, label } = data;
+    const { name, label, limiter } = data;
 
     if (name && label) {
       const permission = await this.PermissionsRepository.findOne({
@@ -161,6 +155,7 @@ export class AdminPermissionsService {
       await this.PermissionsRepository.save({
         name,
         label,
+        limiter,
       });
       return {
         message: '权限创建完成',
@@ -306,17 +301,52 @@ export class AdminPermissionsService {
   }
 
   //更新角色权限
-  async UpdateRoleAuth(roleId: number, permissionIds: number[]) {
+  async UpdateRoleAuth(
+    roleId: number,
+    permissionIds: number[],
+    userid: number,
+  ) {
+    // 获取该角色的的权限
     const rolePermissions = await this.rolePermission.find({
       where: { roleId },
     });
-    const permissionIdsSet = new Set(permissionIds);
+
+    // 先过滤不合规权限
+    const userPermissions = await this.GetUserAuth(userid);
+    const allPermissions = await this.PermissionsRepository.find();
+    const permissionLimiters = allPermissions.reduce((acc, perm) => {
+      acc[perm.name] = perm.limiter;
+      return acc;
+    }, {});
+    const validPermissionIds = permissionIds.filter((permissionId) => {
+      const permission = allPermissions.find(
+        (perm) => perm.id === permissionId,
+      );
+      if (!permission) return false;
+
+      const limiter = permissionLimiters[permission.name];
+      if (!limiter) return true;
+
+      // 检查权限是否已经分配给角色
+      const roleHasPermission = rolePermissions.some(
+        (rp) => rp.permissionId === permissionId,
+      );
+      if (roleHasPermission) return true;
+
+      // 检查用户是否符合权限限制
+      return limiter.some((l) => userPermissions.includes(l));
+    });
+    // console.log('validPermissionIds:', validPermissionIds);
+
+    const permissionIdsSet = new Set(validPermissionIds);
     const deleteIds = rolePermissions
       .filter((rp) => !permissionIdsSet.has(rp.permissionId))
       .map((rp) => rp.permissionId);
-    const addIds = permissionIds.filter(
+    const addIds = validPermissionIds.filter(
       (id) => !rolePermissions.find((rp) => rp.permissionId === id),
     );
+    // console.log('deleteIds:', deleteIds);
+    // console.log('addIds:', addIds);
     const deleteResult = await this.rolePermission.delete({
       roleId,
       permissionId: In(deleteIds),

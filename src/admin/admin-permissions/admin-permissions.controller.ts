@@ -5,7 +5,6 @@ import {
   Query,
   Body,
   Post,
-  Delete,
   Headers,
 } from '@nestjs/common';
 import { AdminPermissionsService } from './admin-permissions.service';
@@ -27,18 +26,14 @@ export class AdminPermissionsController {
         header.userinfo,
       );
     } else {
-      return this.adminPermissionsService.getPermissionsList(header.userinfo);
+      return this.adminPermissionsService.getPermissionsList();
     }
   }
 
   @Get('query')
-  getPermissionsByName(@Query() query, @Headers() header) {
-    if (!query.name)
-      return this.adminPermissionsService.getPermissionsList(header.userinfo);
-    return this.adminPermissionsService.getPermissionsByName(
-      query.name,
-      header.userinfo,
-    );
+  getPermissionsByName(@Query() query) {
+    if (!query.name) return this.adminPermissionsService.getPermissionsList();
+    return this.adminPermissionsService.getPermissionsByName(query.name);
   }
 
   @Get('recycle')
@@ -67,13 +62,13 @@ export class AdminPermissionsController {
 
   @Put('rollback')
   @Permissions(['auth:rollback'])
-  rollbackPermissions(@Body() body, @Headers() header) {
-    return this.adminPermissionsService.rollbackPermission(body.id, header);
+  rollbackPermissions(@Body() body) {
+    return this.adminPermissionsService.rollbackPermission(body.id);
   }
 
   @Put('delete')
   @Permissions(['auth:delete'])
-  softDeletePermissions(@Body() body, @Headers() header) {
-    return this.adminPermissionsService.softDeletePermission(body.id, header);
+  softDeletePermissions(@Body() body) {
+    return this.adminPermissionsService.softDeletePermission(body.id);
   }
 }

@@ -190,7 +190,7 @@ export class AdminUserService {
   /**
    * 更新角色信息
    */
-  async updateRole(data: AdminRoleUpdateDto): Promise<any> {
+  async updateRole(data: AdminRoleUpdateDto, { userinfo }): Promise<any> {
     const role = await this.roleRepository.find({
       where: {
         id: data.id,
@@ -212,7 +212,11 @@ export class AdminUserService {
       );
       if (roleUpdate) {
         if (
-          this.adminPermissionsService.UpdateRoleAuth(data.id, data.permissions)
+          this.adminPermissionsService.UpdateRoleAuth(
+            data.id,
+            data.permissions,
+            userinfo.userid,
+          )
         ) {
           return {
             message: '更新成功',
@@ -227,7 +231,7 @@ export class AdminUserService {
   /**
    * 创建新角色
    */
-  async createRole(data: AdminRoleCreateDto): Promise<any> {
+  async createRole(data: AdminRoleCreateDto, { userinfo }): Promise<any> {
     //查一下角色是否存在
     const role = await this.roleRepository.findOne({
       where: {
@@ -248,6 +252,7 @@ export class AdminUserService {
     const createRoleAuth = await this.adminPermissionsService.UpdateRoleAuth(
       roleCreate.id,
       data.permissions,
+      userinfo.userid,
     );
     if (createRoleAuth || roleCreate) {
       return {
@@ -381,5 +386,221 @@ export class AdminUserService {
         message: '角色恢复成功',
       };
     }
+  }
+
+  //  用户列表
+  async userList(name?: string): Promise<any> {
+    const currentTime = new Date();
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userRoles', 'userRole')
+      .leftJoinAndSelect('userRole.role', 'role')
+      .leftJoinAndSelect(
+        'user.blockList',
+        'blockList',
+        'blockList.end_time > :currentTime',
+        { currentTime },
+      )
+      .select([
+        'user.userid',
+        'user.nickname',
+        'user.username',
+        'user.signature',
+        'user.email',
+        'blockList.begin_time',
+        'blockList.end_time',
+        'blockList.prompt',
+        'userRole',
+        'role.id',
+        'role.roleKey',
+        'role.label',
+      ]);
+
+    // 根据名称进行过滤
+    if (name) {
+      queryBuilder.where(
+        '(user.username LIKE :name OR user.nickname LIKE :name)',
+        {
+          name: `%${name}%`,
+        },
+      );
+    }
+    const userList = await queryBuilder.getMany();
+    const modifiedUserList = userList.map((user) => {
+      const roles = user.userRoles.map((userRole) => userRole.role);
+      delete user.userRoles;
+      return {
+        ...user,
+        roles,
+      };
+    });
+    return modifiedUserList;
+    // 计算总页数
+    // const pageCount = Math.ceil(total / limit);
+    // return {
+    //   list,
+    // pageInfo: {
+    //   current: Number(page),
+    //   pageCount,
+    //   pagesize: Number(limit),
+    //   total,
+    // },
+    // };
+  }
+  async fetchRoles({ userid }) {
+    const isSuper = await this.adminPermissionsService.filter(
+      userid,
+      ['super'],
+      true,
+    );
+    let roles = await this.roleRepository.find({
+      select: ['id', 'roleKey', 'label'],
+    });
+
+    if (!isSuper) {
+      //去掉超管与管理
+      roles = roles.filter((role) => {
+        return role.roleKey !== 'BQ3KwE2l' && role.roleKey !== 'zpPFNnXd';
+      });
+    }
+    return roles;
+  }
+
+  async blockUser({
+    userid,
+    blockList,
+    prompt,
+  }: {
+    userid: number;
+    blockList: Array<number>;
+    prompt: string;
+  }) {
+    const begin_time = blockList[0];
+    const end_time = blockList[1];
+    if (begin_time > end_time) {
+      throw new BadRequestException('结束时间不能早于开始时间');
+    }
+    if (begin_time === end_time) {
+      throw new BadRequestException('结束时间不能与开始时间相同');
+    }
+    const blockResult = await this.banService.blockUser(
+      userid,
+      begin_time,
+      end_time,
+      prompt,
+    );
+    if (blockResult) {
+      return {
+        message: '已禁止用户',
+      };
+    } else {
+      throw new BadRequestException('禁止失败');
+    }
+  }
+  async unblockUser(userid: number) {
+    const currentTime = new Date();
+    const blockUser = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect(
+        'user.blockList',
+        'blockList',
+        'blockList.end_time > :currentTime',
+        { currentTime },
+      )
+      .where('user.userid = :userid', { userid })
+      .getOne();
+    if (!blockUser) {
+      throw new BadRequestException('用户不存在');
+    } else {
+      const unblockResult = await this.banService.unblock(userid);
+      if (unblockResult) {
+        return {
+          message: '解封成功',
+        };
+      } else {
+        throw new BadRequestException('解封失败');
+      }
+    }
+  }
+
+  async createUser(body) {
+    return { ...body, message: '后台注册用户功能尚未完成' };
+  }
+
+  async updateUser(body, { userid }) {
+    const user = await this.userRepository.findOne({
+      where: {
+        userid: body.userid,
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('用户不存在');
+    }
+
+    // 是否有用户角色编辑权限
+    const userRolesAuth = await this.adminPermissionsService.filter(
+      userid,
+      ['user:roles'],
+      true,
+    );
+
+    await this.userRepository.save({
+      email: body.email,
+      nickname: body.nickname,
+      signature: body.signature,
+      userid: body.userid,
+    });
+    if (userRolesAuth) {
+      await this.updateUserRoles(body.userid, body.roles);
+    }
+    return {
+      message: '更新成功',
+    };
+  }
+
+  async updateUserRoles(userid: number, roleIds: number[]) {
+    const userRoles = await this.userRoleRepository.find({
+      where: { userId: userid },
+    });
+
+    const roleIdsSet = new Set(roleIds);
+
+    const deleteIds = userRoles
+      .filter((ur) => !roleIdsSet.has(ur.roleId))
+      .map((ur) => ur.roleId);
+
+    // 如果要删除的权限中包含超管权限，检查一下是否还有其他超级管理员，如果是唯一则不允许删除
+    if (deleteIds.includes(1)) {
+      const superAdmins = await this.userRoleRepository.find({
+        where: { roleId: 1 },
+      });
+      if (superAdmins.length === 1) {
+        throw new BadRequestException('请至少拥有一位超级管理员');
+      } else if (superAdmins[0].userId === userid) {
+        throw new BadRequestException('你不能解除自己的超级管理员');
+      }
+    }
+
+    const addIds = roleIds.filter(
+      (id) => !userRoles.find((ur) => ur.roleId === id),
+    );
+    // console.log('userRoles:', userRoles);
+    // console.log('addIds:', addIds);
+    // console.log('deleteIds:', deleteIds);
+
+    const deleteResult = await this.userRoleRepository.delete({
+      userId: userid,
+      roleId: In(deleteIds),
+    });
+
+    const addResult = await this.userRoleRepository.insert(
+      addIds.map((roleId) => ({ userId: userid, roleId })),
+    );
+
+    return (
+      deleteResult.affected > 0 ||
+      addResult.identifiers.length > 0 ||
+      addResult.generatedMaps.length > 0
+    );
   }
 }
