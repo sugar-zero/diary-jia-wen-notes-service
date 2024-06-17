@@ -5,7 +5,11 @@ import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
 import { ResponseIntercept } from './common/responseIntercept';
-import { AuthGuard } from './common/auth.guard';
+import { AuthGuard } from './common/guards/auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { BanStatusGuard } from 'src/common/guards/ban-status.guard';
+import { PublicRouteGuard } from 'src/common/guards/route.guard';
+import { PermissionsGuard } from 'src/common/guards/permissions.guard';
 import configuration from './config/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,7 +19,7 @@ import { CommentModule } from './comment/comment.module';
 import { LikeModule } from './like/like.module';
 import { SubscribeModule } from './subscribe/subscribe.module';
 import { BanModule } from './block/block.module';
-// import { AdminUserModule } from './admin/admin-user/admin-user.module';
+import { AdminUserModule } from './admin/admin-user/admin-user.module';
 // import { AdminDiaryModule } from './admin/admin-diary/admin-diary.module';
 // import { AdminBlockModule } from './admin/admin-block/admin-block.module';
 // import { AdminSubscribeModule } from './admin/admin-subscribe/admin-subscribe.module';
@@ -23,6 +27,8 @@ import { CacheModule } from './admin/cache/cache.module';
 import { ExemptionInterfaceModule } from './admin/exemption-interface/exemption-interface.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
+import { AdminMenusModule } from './admin/admin-menus/admin-menus.module';
+import { AdminPermissionsModule } from './admin/admin-permissions/admin-permissions.module';
 
 console.log(
   '当前运行环境:',
@@ -56,19 +62,25 @@ console.log(
     LikeModule,
     SubscribeModule,
     BanModule,
-    // AdminUserModule,
+    AdminUserModule,
     // AdminDiaryModule,
     // AdminBlockModule,
     // AdminSubscribeModule,
     CacheModule,
     ExemptionInterfaceModule,
     MailModule,
+    AdminMenusModule,
+    AdminPermissionsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_INTERCEPTOR, useClass: ResponseIntercept },
     { provide: APP_GUARD, useClass: AuthGuard },
+    JwtAuthGuard,
+    BanStatusGuard,
+    PublicRouteGuard,
+    PermissionsGuard,
   ],
 })
 export class AppModule {}

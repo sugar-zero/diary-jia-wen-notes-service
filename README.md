@@ -5,39 +5,39 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+  <p align="center">基于 <a href="https://nestjs.com/" target="_blank">Nest.js</a> 进行开发的后端项目</p>
     <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+<img src="https://img.shields.io/badge/Node-18.7.1-blue" alt="Node Version">
+<img src="https://img.shields.io/badge/npm-9.6.7-skyblue" alt="NPM Version">
+<img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="License">
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 简介
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+本项目是日记项目的后端，无法单独使用，需要配合前端使用
 
-## Installation
+<a href="https://gitee.com/SugarZero/diary-jia-wen-notes" target="_blank">
+    <img src="https://img.shields.io/badge/前端-Gitee-C71D23" alt="Gitee">
+</a>
+<a href="https://github.com/sugar-zero/diary-jia-wen-notes" target="_blank">
+    <img src="https://img.shields.io/badge/前端-Github-181717" alt="Github">
+</a>
+<a href="https://amedev.amesucre.com/diary" target="_blank">
+    <img src="https://img.shields.io/badge/前端-AmeDev (Main)-52A1F8" alt="AmeDev">
+</a>
+
+## 安装
 
 ```bash
-$ pnpm -v # 8.12
+$ npm install -g pnpm #if you don't have pnpm
 $ pnpm install
 ```
 
-## Running the app
+## 运行
 
 ```bash
-# development
-$ pnpm run start
+# development and debug mode
+$ pnpm run start:debug
 
 # watch mode
 $ pnpm run start:dev
@@ -46,29 +46,22 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Test
+## 构建
 
 ```bash
-# unit tests
-$ pnpm run test
+# build but files are scattered
+$ pnpm run build
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# build and only generate one main file(main.js)
+$ pnpm run build:one
 ```
 
-## Support
+## 注意
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+框架在构建时不同于vue项目会打包出一个开箱即用的整体；它是不包含环境的，需要把node_modules中的环境文件复制一份才可以运行，如果不想麻烦可以访问我自己的流水线下载带环境的包
 
-## Stay in touch
+## 开箱即用的包
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+<a href="https://amedev.amesucre.com/diary/diary-serivce/~builds?query=successful+and+~release~" target="_blank">
+    <img src="https://img.shields.io/badge/dist(With Env)-AmeDev-52A1F8" alt="Distribution on AmeDev">
+</a>

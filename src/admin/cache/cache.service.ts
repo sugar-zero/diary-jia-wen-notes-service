@@ -18,7 +18,11 @@ export class CacheService implements OnModuleInit {
   ) {}
   private readonly logger = new Logger('CacheService');
   // 缓存路径放到根目录
-  private readonly cachePath = path.resolve(__dirname, '../../cache.json');
+  env = process.env.NODE_ENV;
+  private readonly cachePath =
+    this.env === 'development'
+      ? path.resolve(__dirname, '../../cache.json')
+      : path.resolve(__dirname, 'cache.json');
 
   /**
    * 在模块初始化时执行的操作

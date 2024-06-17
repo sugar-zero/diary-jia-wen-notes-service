@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtDecrypTool } from '../utils/aes';
 import { ConfigService } from '@nestjs/config';
 import { MailModule } from 'src/mail/mail.module';
+import { OssService } from 'src/utils/alioss';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { MailModule } from 'src/mail/mail.module';
     MailModule,
   ], //引入数据实体表跟Jwt模块
   controllers: [UserController],
-  providers: [UserService, JwtDecrypTool],
+  providers: [UserService, JwtDecrypTool, OssService],
 })
 export class UserModule {}

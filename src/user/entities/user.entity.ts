@@ -5,6 +5,7 @@ import { Comment } from '../../comment/entities/comment.entity';
 import { Subscribe } from 'src/subscribe/entities/subscribe.entity';
 import { BlockList } from 'src/block/entities/block.entity';
 import { ResetToekn } from './resetToken.entity';
+import { UserRole } from 'src/admin/admin-user/entities/admin-userRole.entity';
 
 @Entity()
 export class User {
@@ -94,4 +95,8 @@ export class User {
   // 一个用户对应重置密码
   @OneToMany(() => ResetToekn, (resetToekn) => resetToekn.user_id)
   resetToekn: ResetToekn[];
+
+  // 一个用户对应多个角色
+  @OneToMany(() => UserRole, (userRole) => userRole.user)
+  userRoles: UserRole[];
 }

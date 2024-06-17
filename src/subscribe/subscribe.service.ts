@@ -5,7 +5,7 @@ import { Subscribe } from './entities/subscribe.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import WebPush from 'web-push';
+const WebPush = require('web-push');
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -89,7 +89,7 @@ export class SubscribeService {
    * 查找所有终端点
    * @returns {Promise<Array>} 所有终端点的结果
    */
-  async findAllEndpoint() {
+  async findAllEndpoint(): Promise<Array<any>> {
     return this.subscribeRepository.find({
       where: {
         effective: true,

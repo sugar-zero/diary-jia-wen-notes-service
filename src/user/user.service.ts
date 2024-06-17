@@ -15,6 +15,7 @@ import { Repository, MoreThanOrEqual } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { encrypt } from '../utils/aes';
 import { MailService } from 'src/mail/mail.service';
+import { OssService } from 'src/utils/alioss';
 
 @Injectable()
 export class UserService {
@@ -26,6 +27,7 @@ export class UserService {
     private readonly banService: BanService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly ossService: OssService,
   ) {}
   /**
    * 注册新用户
@@ -100,6 +102,12 @@ export class UserService {
       select: ['username', 'nickname', 'signature', 'avatar', 'userBg'],
     });
     // 返回查询到的用户信息
+    userInfo.avatar = await this.ossService.getFileSignatureUrl(
+      userInfo.avatar,
+    );
+    userInfo.userBg = await this.ossService.getFileSignatureUrl(
+      userInfo.userBg,
+    );
     return {
       data: userInfo,
     };
@@ -130,6 +138,14 @@ export class UserService {
     },
     { username },
   ): Promise<object> {
+    // 如果是url，通过正则提取key
+    const pattern: RegExp = /([^\/]+\/\d+\.\w+)/;
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+      avatar = avatar.match(pattern)[0];
+    }
+    if (userBg.startsWith('http://') || userBg.startsWith('https://')) {
+      userBg = userBg.match(pattern)[0];
+    }
     await this.userRepository.update(
       { username },
       {
@@ -161,7 +177,13 @@ export class UserService {
    * @throws {ForbiddenException} 用户被封禁异常
    * @throws {BadRequestException} 参数错误异常
    */
-  async login({ username, password, remember }: UserLoginDto) {
+  async login({ username, password, remember }: UserLoginDto): Promise<{
+    message: string;
+    data: {
+      token: string;
+      userInfo: number;
+    };
+  }> {
     // 验证加密密码
     password = encrypt(password);
     const userInfo = await this.userRepository.findOne({
@@ -179,6 +201,7 @@ export class UserService {
         delete userBlockingStatus.id;
         throw new ForbiddenException(userBlockingStatus);
       }
+
       return {
         message: '登录成功',
         data: {
